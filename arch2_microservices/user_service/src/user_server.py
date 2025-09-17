@@ -2,7 +2,7 @@ import grpc
 from concurrent import futures
 import time
 
-from src import user_pb2, user_pb2_grpc
+from . import user_pb2, user_pb2_grpc
 
 # In-memory "database" for demo
 users_db = {}

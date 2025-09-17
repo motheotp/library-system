@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from . import user_pb2 as user__pb2
+from . import book_pb2 as book__pb2
 
 GRPC_GENERATED_VERSION = '1.74.0'
 GRPC_VERSION = grpc.__version__
@@ -18,15 +18,15 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in user_pb2_grpc.py depends on'
+        + f' but the generated code in book_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class UserServiceStub(object):
-    """The User service definition
+class BookServiceStub(object):
+    """Book service definition
     """
 
     def __init__(self, channel):
@@ -35,97 +35,93 @@ class UserServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.CreateUser = channel.unary_unary(
-                '/user.UserService/CreateUser',
-                request_serializer=user__pb2.CreateUserRequest.SerializeToString,
-                response_deserializer=user__pb2.CreateUserResponse.FromString,
+        self.AddBook = channel.unary_unary(
+                '/book.BookService/AddBook',
+                request_serializer=book__pb2.AddBookRequest.SerializeToString,
+                response_deserializer=book__pb2.AddBookResponse.FromString,
                 _registered_method=True)
-        self.GetUser = channel.unary_unary(
-                '/user.UserService/GetUser',
-                request_serializer=user__pb2.GetUserRequest.SerializeToString,
-                response_deserializer=user__pb2.GetUserResponse.FromString,
+        self.GetBook = channel.unary_unary(
+                '/book.BookService/GetBook',
+                request_serializer=book__pb2.GetBookRequest.SerializeToString,
+                response_deserializer=book__pb2.GetBookResponse.FromString,
                 _registered_method=True)
-        self.AuthenticateUser = channel.unary_unary(
-                '/user.UserService/AuthenticateUser',
-                request_serializer=user__pb2.AuthenticateUserRequest.SerializeToString,
-                response_deserializer=user__pb2.AuthenticateUserResponse.FromString,
+        self.ListBooks = channel.unary_unary(
+                '/book.BookService/ListBooks',
+                request_serializer=book__pb2.ListBooksRequest.SerializeToString,
+                response_deserializer=book__pb2.ListBooksResponse.FromString,
                 _registered_method=True)
-        self.ListUsers = channel.unary_unary(
-                '/user.UserService/ListUsers',
-                request_serializer=user__pb2.ListUsersRequest.SerializeToString,
-                response_deserializer=user__pb2.ListUsersResponse.FromString,
+        self.UpdateBookStatus = channel.unary_unary(
+                '/book.BookService/UpdateBookStatus',
+                request_serializer=book__pb2.UpdateBookStatusRequest.SerializeToString,
+                response_deserializer=book__pb2.UpdateBookStatusResponse.FromString,
                 _registered_method=True)
 
 
-class UserServiceServicer(object):
-    """The User service definition
+class BookServiceServicer(object):
+    """Book service definition
     """
 
-    def CreateUser(self, request, context):
-        """Create a new user
-        """
+    def AddBook(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetUser(self, request, context):
-        """Get user details by ID
-        """
+    def GetBook(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def AuthenticateUser(self, request, context):
-        """Authenticate a user (login)
-        """
+    def ListBooks(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ListUsers(self, request, context):
-        """Optional: List all users (useful for testing / admin)
-        """
+    def UpdateBookStatus(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_UserServiceServicer_to_server(servicer, server):
+def add_BookServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'CreateUser': grpc.unary_unary_rpc_method_handler(
-                    servicer.CreateUser,
-                    request_deserializer=user__pb2.CreateUserRequest.FromString,
-                    response_serializer=user__pb2.CreateUserResponse.SerializeToString,
+            'AddBook': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddBook,
+                    request_deserializer=book__pb2.AddBookRequest.FromString,
+                    response_serializer=book__pb2.AddBookResponse.SerializeToString,
             ),
-            'GetUser': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetUser,
-                    request_deserializer=user__pb2.GetUserRequest.FromString,
-                    response_serializer=user__pb2.GetUserResponse.SerializeToString,
+            'GetBook': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetBook,
+                    request_deserializer=book__pb2.GetBookRequest.FromString,
+                    response_serializer=book__pb2.GetBookResponse.SerializeToString,
             ),
-            'AuthenticateUser': grpc.unary_unary_rpc_method_handler(
-                    servicer.AuthenticateUser,
-                    request_deserializer=user__pb2.AuthenticateUserRequest.FromString,
-                    response_serializer=user__pb2.AuthenticateUserResponse.SerializeToString,
+            'ListBooks': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListBooks,
+                    request_deserializer=book__pb2.ListBooksRequest.FromString,
+                    response_serializer=book__pb2.ListBooksResponse.SerializeToString,
             ),
-            'ListUsers': grpc.unary_unary_rpc_method_handler(
-                    servicer.ListUsers,
-                    request_deserializer=user__pb2.ListUsersRequest.FromString,
-                    response_serializer=user__pb2.ListUsersResponse.SerializeToString,
+            'UpdateBookStatus': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateBookStatus,
+                    request_deserializer=book__pb2.UpdateBookStatusRequest.FromString,
+                    response_serializer=book__pb2.UpdateBookStatusResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'user.UserService', rpc_method_handlers)
+            'book.BookService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('user.UserService', rpc_method_handlers)
+    server.add_registered_method_handlers('book.BookService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class UserService(object):
-    """The User service definition
+class BookService(object):
+    """Book service definition
     """
 
     @staticmethod
-    def CreateUser(request,
+    def AddBook(request,
             target,
             options=(),
             channel_credentials=None,
@@ -138,9 +134,9 @@ class UserService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/user.UserService/CreateUser',
-            user__pb2.CreateUserRequest.SerializeToString,
-            user__pb2.CreateUserResponse.FromString,
+            '/book.BookService/AddBook',
+            book__pb2.AddBookRequest.SerializeToString,
+            book__pb2.AddBookResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -152,7 +148,7 @@ class UserService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetUser(request,
+    def GetBook(request,
             target,
             options=(),
             channel_credentials=None,
@@ -165,9 +161,9 @@ class UserService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/user.UserService/GetUser',
-            user__pb2.GetUserRequest.SerializeToString,
-            user__pb2.GetUserResponse.FromString,
+            '/book.BookService/GetBook',
+            book__pb2.GetBookRequest.SerializeToString,
+            book__pb2.GetBookResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -179,7 +175,7 @@ class UserService(object):
             _registered_method=True)
 
     @staticmethod
-    def AuthenticateUser(request,
+    def ListBooks(request,
             target,
             options=(),
             channel_credentials=None,
@@ -192,9 +188,9 @@ class UserService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/user.UserService/AuthenticateUser',
-            user__pb2.AuthenticateUserRequest.SerializeToString,
-            user__pb2.AuthenticateUserResponse.FromString,
+            '/book.BookService/ListBooks',
+            book__pb2.ListBooksRequest.SerializeToString,
+            book__pb2.ListBooksResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -206,7 +202,7 @@ class UserService(object):
             _registered_method=True)
 
     @staticmethod
-    def ListUsers(request,
+    def UpdateBookStatus(request,
             target,
             options=(),
             channel_credentials=None,
@@ -219,9 +215,9 @@ class UserService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/user.UserService/ListUsers',
-            user__pb2.ListUsersRequest.SerializeToString,
-            user__pb2.ListUsersResponse.FromString,
+            '/book.BookService/UpdateBookStatus',
+            book__pb2.UpdateBookStatusRequest.SerializeToString,
+            book__pb2.UpdateBookStatusResponse.FromString,
             options,
             channel_credentials,
             insecure,

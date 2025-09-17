@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package book;
+
+// Book service definition
+service BookService {
+  rpc AddBook (AddBookRequest) returns (AddBookResponse);
+  rpc GetBook (GetBookRequest) returns (GetBookResponse);
+  rpc ListBooks (ListBooksRequest) returns (ListBooksResponse);
+  rpc UpdateBookStatus (UpdateBookStatusRequest) returns (UpdateBookStatusResponse);
+}
+
+// ===== Messages =====
+
+// Book object
+message Book {
+  string id = 1;
+  string title = 2;
+  string author = 3;
+  string isbn = 4;
+  string status = 5; // e.g., "available", "borrowed"
+}
+
+// --- AddBook ---
+message AddBookRequest {
+  string title = 1;
+  string author = 2;
+  string isbn = 3;
+}
+
+message AddBookResponse {
+  Book book = 1;
+}
+
+// --- GetBook ---
+message GetBookRequest {
+  string id = 1;
+}
+
+message GetBookResponse {
+  Book book = 1;
+}
+
+// --- ListBooks ---
+message ListBooksRequest {}
+
+message ListBooksResponse {
+  repeated Book books = 1;
+}
+
+// --- UpdateBookStatus ---
+message UpdateBookStatusRequest {
+  string id = 1;
+  string status = 2; // new status
+}
+
+message UpdateBookStatusResponse {
+  Book book = 1;
+}

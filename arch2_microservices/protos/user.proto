@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package user;
+// option go_package = "arch2_microservices/protos/user";
+
+// The User service definition
+service UserService {
+  // Create a new user
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+
+  // Get user details by ID
+  rpc GetUser (GetUserRequest) returns (GetUserResponse);
+
+  // Authenticate a user (login)
+  rpc AuthenticateUser (AuthenticateUserRequest) returns (AuthenticateUserResponse);
+
+  // Optional: List all users (useful for testing / admin)
+  rpc ListUsers (ListUsersRequest) returns (ListUsersResponse);
+}
+
+// Enum for user types
+enum UserType {
+  UNKNOWN = 0;  // default if not set
+  STUDENT = 1;
+  STAFF = 2;
+}
+
+// ===== Messages =====
+
+// User object
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string password_hash = 4; // only stored internally
+  UserType user_type = 5; // user type --> student or staff
+}
+
+// --- CreateUser ---
+message CreateUserRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+  UserType user_type = 4; 
+}
+
+message CreateUserResponse {
+  User user = 1;
+}
+
+// --- GetUser ---
+message GetUserRequest {
+  string id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+// --- AuthenticateUser ---
+message AuthenticateUserRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message AuthenticateUserResponse {
+  string user_id = 1;
+  string token = 2; // e.g., JWT or session token
+}
+
+// --- ListUsers ---
+message ListUsersRequest {}
+
+message ListUsersResponse {
+  repeated User users = 1;
+}
