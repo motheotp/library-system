@@ -31,6 +31,14 @@ class User(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
+    def get_active_borrowings_count(self):
+        """Get count of user's active borrowings"""
+        return self.borrowings.filter_by(returned=False).count()
+    
+    def can_borrow_book(self, max_limit=3):
+        """Check if user can borrow another book"""
+        return self.get_active_borrowings_count() < max_limit
+
 class Book(db.Model):
     __tablename__ = "books"
 
@@ -66,6 +74,24 @@ class Book(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
+    
+    def is_available(self):
+        """Check if book is available for borrowing"""
+        return self.available_copies > 0
+    
+    def borrow_copy(self):
+        """Decrease available copies when book is borrowed"""
+        if self.available_copies > 0:
+            self.available_copies -= 1
+            return True
+        return False
+    
+    def return_copy(self):
+        """Increase available copies when book is returned"""
+        if self.available_copies < self.total_copies:
+            self.available_copies += 1
+            return True
+        return False
 
 class Borrowing(db.Model):
     """Borrowing model - represents book borrowing transactions"""
@@ -97,6 +123,18 @@ class Borrowing(db.Model):
             'is_overdue': self.is_overdue(),
             'days_overdue': self.days_overdue()
         }
+    
+    def is_overdue(self):
+        """Check if borrowing is overdue"""
+        if self.returned:
+            return False
+        return datetime.utcnow() > self.due_date
+    
+    def days_overdue(self):
+        """Calculate days overdue"""
+        if not self.is_overdue():
+            return 0
+        return (datetime.utcnow() - self.due_date).days
 
 class Reservation(db.Model):
     """Reservation model - represents book reservations when not available"""
