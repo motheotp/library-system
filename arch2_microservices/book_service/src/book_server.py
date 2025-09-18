@@ -52,8 +52,8 @@ class BookService(book_pb2_grpc.BookServiceServicer):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     book_pb2_grpc.add_BookServiceServicer_to_server(BookService(), server)
-    server.add_insecure_port('[::]:50052')
-    print("BookService gRPC server running on port 50052...")
+    server.add_insecure_port('[::]:50053')
+    print("BookService gRPC server running on port 50053...")
     server.start()
     try:
         while True:
