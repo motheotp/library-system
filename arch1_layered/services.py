@@ -113,8 +113,8 @@ class BookService:
             cache_key = f"books:page:{page}:per_page:{per_page}:category:{category or 'all'}"
             cached_result = self.cache.get(cache_key)
 
-            if cache_key:
-                return {**json.loads(cache_result), 'source': 'cache'}
+            if cached_result:
+                return {**json.loads(cached_result), 'source': 'cache'}
             
             query = Book.query.filter(Book.available_copies > 0)
 
@@ -126,13 +126,13 @@ class BookService:
             )
 
             result = {
-                'books': [book.to_dict() for book in paginated_books.item],
+                'books': [book.to_dict() for book in paginated_books.items],
                 'pagination': {
                     'page': page,
                     'pages': paginated_books.pages,
                     'total': paginated_books.total,
                     'has_next': paginated_books.has_next,
-                    'has_prev': paginated_books.has_next
+                    'has_prev': paginated_books.has_prev
                 },
                 'source': 'database'
             }
