@@ -1,6 +1,6 @@
 import pytest
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from models import Borrowing, Reservation, db
 
 class TestStatisticsAndHealth:
@@ -119,8 +119,8 @@ class TestStatisticsAndHealth:
             borrowing = Borrowing(
                 user_id=sample_users[i].id,
                 book_id=sample_books[i].id,
-                borrowed_date=datetime.utcnow(),
-                due_date=datetime.utcnow() + timedelta(days=14),
+                borrowed_date=datetime.now(timezone.utc),
+                due_date=datetime.now(timezone.utc) + timedelta(days=14),
                 returned=False
             )
             db.session.add(borrowing)
@@ -129,10 +129,10 @@ class TestStatisticsAndHealth:
         returned = Borrowing(
             user_id=sample_users[2].id,
             book_id=sample_books[2].id,
-            borrowed_date=datetime.utcnow() - timedelta(days=10),
-            due_date=datetime.utcnow() + timedelta(days=4),
+            borrowed_date=datetime.now(timezone.utc) - timedelta(days=10),
+            due_date=datetime.now(timezone.utc) + timedelta(days=4),
             returned=True,
-            returned_date=datetime.utcnow()
+            returned_date=datetime.now(timezone.utc)
         )
         db.session.add(returned)
         db.session.commit()
@@ -163,7 +163,7 @@ class TestStatisticsAndHealth:
             reservation = Reservation(
                 user_id=sample_users[i].id,
                 book_id=sample_books[3].id,
-                reserved_date=datetime.utcnow(),
+                reserved_date=datetime.now(timezone.utc),
                 status='active',
                 priority=i + 1
             )
@@ -173,7 +173,7 @@ class TestStatisticsAndHealth:
         fulfilled = Reservation(
             user_id=sample_users[2].id,
             book_id=sample_books[3].id,
-            reserved_date=datetime.utcnow() - timedelta(days=5),
+            reserved_date=datetime.now(timezone.utc) - timedelta(days=5),
             status='fulfilled',
             priority=3
         )
@@ -215,8 +215,8 @@ class TestStatisticsAndHealth:
         borrowing = Borrowing(
             user_id=sample_users[0].id,
             book_id=sample_books[0].id,
-            borrowed_date=datetime.utcnow(),
-            due_date=datetime.utcnow() + timedelta(days=14),
+            borrowed_date=datetime.now(timezone.utc),
+            due_date=datetime.now(timezone.utc) + timedelta(days=14),
             returned=False
         )
         sample_books[0].available_copies -= 1

@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from datetime import datetime
+from datetime import datetime, timezone
 from services import UserService, BookService, BorrowingService, ReservationService, StatisticsService
 
 def create_routes(user_service: UserService, book_service: BookService, 
@@ -15,7 +15,7 @@ def create_routes(user_service: UserService, book_service: BookService,
         """System health check"""
         return jsonify({
             'status': 'healthy',
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'version': '1.0.0'
         })
     

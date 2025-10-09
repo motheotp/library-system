@@ -25,9 +25,15 @@ USER app
 # Expose port
 EXPOSE 5000
 
+# Install curl for health checks
+USER root
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+USER app
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:5000/api/health || exit 1
 
 # Run the application
+# Using python directly for now (simpler for debugging)
 CMD ["python", "app.py"]

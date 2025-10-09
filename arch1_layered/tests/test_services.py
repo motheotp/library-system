@@ -1,5 +1,5 @@
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from services import (
     CacheService, UserService, BookService,
     BorrowingService, ReservationService, StatisticsService
@@ -205,8 +205,8 @@ class TestBookService:
         borrowing = Borrowing(
             user_id=sample_users[0].id,
             book_id=sample_books[0].id,
-            borrowed_date=datetime.utcnow(),
-            due_date=datetime.utcnow() + timedelta(days=14),
+            borrowed_date=datetime.now(timezone.utc),
+            due_date=datetime.now(timezone.utc) + timedelta(days=14),
             returned=True
         )
         db.session.add(borrowing)

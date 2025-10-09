@@ -18,6 +18,8 @@ class TestBorrowingSystem:
                 'book_id': book_id
             })
 
+        if response.status_code != 200:
+            print(f"Error response: {response.data}")
         assert response.status_code == 200
         data = json.loads(response.data)
         assert 'successfully' in data['message']
@@ -120,8 +122,10 @@ class TestBorrowingSystem:
         borrowed_date = datetime.fromisoformat(data['borrowing']['borrowed_date'].replace('Z', '+00:00'))
         due_date = datetime.fromisoformat(data['borrowing']['due_date'].replace('Z', '+00:00'))
 
-        days_diff = (due_date - borrowed_date).days
-        assert days_diff == 14
+        # Check total seconds to account for time precision (14 days = 1209600 seconds)
+        total_seconds = (due_date - borrowed_date).total_seconds()
+        # Should be 14 days +/- 1 second for rounding
+        assert 1209599 <= total_seconds <= 1209601
 
     def test_return_book_success(self, client, app_context, sample_borrowing, sample_books):
         """Test successful book return"""

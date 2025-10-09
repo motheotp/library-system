@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # Node 1: Nginx Load Balancer
+  nginx:
+    image: nginx:alpine
+    container_name: library_nginx_lb
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend_1
+      - backend_2
+    networks:
+      - library_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Node 2: Backend Instance 1
+  backend_1:
+    build: .
+    container_name: library_backend_1
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=False
+      - DATABASE_URL=postgresql://admin:password123@library_postgres:5432/library
+      - REDIS_HOST=library_redis
+      - REDIS_PORT=6379
+      - SECRET_KEY=layered-architecture-secret-key
+      - INSTANCE_ID=backend_1
+    networks:
+      - library_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Node 3: Backend Instance 2
+  backend_2:
+    build: .
+    container_name: library_backend_2
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=False
+      - DATABASE_URL=postgresql://admin:password123@library_postgres:5432/library
+      - REDIS_HOST=library_redis
+      - REDIS_PORT=6379
+      - SECRET_KEY=layered-architecture-secret-key
+      - INSTANCE_ID=backend_2
+    networks:
+      - library_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Connect to existing network created by infrastructure
+networks:
+  library_network:
+    external: true
+    name: library_network
