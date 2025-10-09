@@ -23,7 +23,7 @@ services:
 
   # Node 2: Backend Instance 1
   backend_1:
-    build: .
+    image: aashishmaharjan12/library-management-system:latest
     container_name: library_backend_1
     environment:
       - FLASK_ENV=production
@@ -45,7 +45,7 @@ services:
 
   # Node 3: Backend Instance 2
   backend_2:
-    build: .
+    image: aashishmaharjan12/library-management-system:latest
     container_name: library_backend_2
     environment:
       - FLASK_ENV=production
