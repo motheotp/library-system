@@ -4,7 +4,7 @@ import pytest
 import os
 from app import create_app
 from models import db, User, Book, Borrowing, Reservation
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 @pytest.fixture(scope='session')
 def test_app():
@@ -43,10 +43,19 @@ def app_context(test_app):
 
 @pytest.fixture(scope='function', autouse=True)
 def setup_database(app_context):
-    """Clean database before each test"""
+    """Clean database and cache before each test"""
     db.session.remove()
     db.drop_all()
     db.create_all()
+
+    # Clear Redis cache between tests
+    try:
+        import redis
+        r = redis.Redis(host='localhost', port=6379, db=0)
+        r.flushdb()
+    except:
+        pass  # Redis not available, skip
+
     yield
     db.session.remove()
 
@@ -129,8 +138,8 @@ def sample_borrowing(app_context, sample_users, sample_books):
     borrowing = Borrowing(
         user_id=sample_users[0].id,
         book_id=sample_books[0].id,
-        borrowed_date=datetime.utcnow(),
-        due_date=datetime.utcnow() + timedelta(days=14),
+        borrowed_date=datetime.now(timezone.utc),
+        due_date=datetime.now(timezone.utc) + timedelta(days=14),
         returned=False
     )
 
@@ -148,8 +157,8 @@ def overdue_borrowing(app_context, sample_users, sample_books):
     borrowing = Borrowing(
         user_id=sample_users[1].id,
         book_id=sample_books[1].id,
-        borrowed_date=datetime.utcnow() - timedelta(days=20),
-        due_date=datetime.utcnow() - timedelta(days=6),  # 6 days overdue
+        borrowed_date=datetime.now(timezone.utc) - timedelta(days=20),
+        due_date=datetime.now(timezone.utc) - timedelta(days=6),  # 6 days overdue
         returned=False
     )
 
@@ -167,7 +176,7 @@ def sample_reservation(app_context, sample_users, sample_books):
     reservation = Reservation(
         user_id=sample_users[2].id,
         book_id=sample_books[3].id,  # Book that's not available
-        reserved_date=datetime.utcnow(),
+        reserved_date=datetime.now(timezone.utc),
         status='active',
         priority=1
     )

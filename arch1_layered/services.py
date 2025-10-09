@@ -1,7 +1,7 @@
 from collections import UserList
 import redis
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Optional, Tuple
 from models import db, User, Book, Borrowing, Reservation
 from config import Config
@@ -11,9 +11,9 @@ class CacheService:
     def __init__(self, config: Config):
         try:
             self.redis_client = redis.Redis(
-                host=config.REDIS_HOST,
-                port=config.REDIS_PORT,
-                db=config.REDIS_DB,
+                host=config.get('REDIS_HOST', 'localhost'),
+                port=config.get('REDIS_PORT', 6379),
+                db=config.get('REDIS_DB', 0),
                 decode_responses=True
             )
             self.redis_client.ping()
@@ -95,7 +95,7 @@ class UserService:
         return User.query.get(user_id)
 
     def get_user_by_student_id(self, student_id:str) -> Optional[User]:
-        return User.query.filter_by(student_id=student_id)
+        return User.query.filter_by(student_id=student_id).first()
 
     def authenticate_user(self, student_id: str) -> Tuple[bool, str, Optional[User]]:
         user = self.get_user_by_student_id(student_id)
@@ -158,10 +158,10 @@ class BookService:
             if cached_result:
                 return {**json.loads(cached_result), 'source': 'cache'}
 
-                search_term = f"%{query}%"
-                books = Book.query.filter(
-                    (Book.title.ilike(search_term)) | (Book.author.ilike(search_term))
-                ).filter(Book.available_copies > 0).all()
+            search_term = f"%{query}%"
+            books = Book.query.filter(
+                (Book.title.ilike(search_term)) | (Book.author.ilike(search_term))
+            ).filter(Book.available_copies > 0).all()
 
             result = {
                 'books': [book.to_dict() for book in books],
@@ -182,7 +182,7 @@ class BookService:
             return {'error': str(e), 'books': [], 'query': query, 'count': 0}
 
     def get_book_by_id(self, book_id: int) -> Optional[Book]:
-        return Book.query.get(book_id)
+        return db.session.get(Book, book_id)
 
     def get_popular_books(self, limit: int=10) -> List[Dict]:
         try:
@@ -235,7 +235,7 @@ class BorrowingService:
                 return False, "You already have this book borrowed", None
             
             # Create borrowing record
-            due_date = datetime.utcnow() + timedelta(days=loan_days)
+            due_date = datetime.now(timezone.utc) + timedelta(days=loan_days)
             borrowing = Borrowing(
                 user_id=user_id,
                 book_id=book_id,
@@ -268,18 +268,18 @@ class BorrowingService:
             
             if borrowing.returned:
                 return False, "Book already returned", None
-            
-            # Mark as returned
-            borrowing.returned = True
-            borrowing.returned_date = datetime.utcnow()
-            
-            # Calculate fine if overdue
+
+            # Calculate fine if overdue (BEFORE marking as returned)
             if borrowing.is_overdue():
                 days_overdue = borrowing.days_overdue()
                 borrowing.fine_amount = days_overdue * 1.0  # $1 per day
+
+            # Mark as returned
+            borrowing.returned = True
+            borrowing.returned_date = datetime.now(timezone.utc)
             
             # Update book availability
-            book = Book.query.get(borrowing.book_id)
+            book = db.session.get(Book, borrowing.book_id)
             book.return_copy()
             
             db.session.commit()
@@ -314,10 +314,16 @@ class BorrowingService:
             
             borrowed_books = []
             for borrowing, book in borrowings:
+                # Handle both naive and aware datetimes for days_remaining
+                due = borrowing.due_date
+                now = datetime.now(timezone.utc)
+                if due.tzinfo is None:
+                    now = datetime.utcnow()
+
                 borrowed_book_data = {
                     'borrowing': borrowing.to_dict(),
                     'book': book.to_dict(),
-                    'days_remaining': (borrowing.due_date - datetime.utcnow()).days
+                    'days_remaining': (due - now).days
                 }
                 borrowed_books.append(borrowed_book_data)
             
@@ -349,7 +355,7 @@ class BorrowingService:
                 User, Borrowing.user_id == User.id
             ).filter(
                 Borrowing.returned == False,
-                Borrowing.due_date < datetime.utcnow()
+                Borrowing.due_date < datetime.now(timezone.utc)
             ).all()
             
             overdue_books = []
@@ -430,13 +436,13 @@ class StatisticsService:
                     'active': Borrowing.query.filter_by(returned=False).count(),
                     'overdue': Borrowing.query.filter(
                         Borrowing.returned == False,
-                        Borrowing.due_date < datetime.utcnow()
+                        Borrowing.due_date < datetime.now(timezone.utc)
                     ).count()
                 },
                 'reservations': {
                     'active': Reservation.query.filter_by(status='active').count()
                 },
-                'generated_at': datetime.utcnow().isoformat()
+                'generated_at': datetime.now(timezone.utc).isoformat()
             }
 
             self.cache.set(cache_key, json.dumps(stats), 180)  # 3 minutes

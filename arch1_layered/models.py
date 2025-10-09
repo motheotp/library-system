@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timezone
 
 db = SQLAlchemy()
 
@@ -11,8 +11,8 @@ class User(db.Model):
     name = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False, index=True)
     role = db.Column(db.String(20), default='student')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     borrowings = db.relationship('Borrowing', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     reservations = db.relationship('Reservation', backref='user', lazy='dynamic', cascade='all, delete-orphan')
@@ -50,8 +50,8 @@ class Book(db.Model):
     description = db.Column(db.Text)
     total_copies = db.Column(db.Integer, default=1)
     available_copies = db.Column(db.Integer, default=1)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     borrowings = db.relationship('Borrowing', backref='book', lazy='dynamic', cascade='all, delete-orphan')
     reservations = db.relationship('Reservation', backref='book', lazy='dynamic', cascade='all, delete-orphan')
@@ -100,7 +100,7 @@ class Borrowing(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False, index=True)
-    borrowed_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    borrowed_date = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     due_date = db.Column(db.DateTime, nullable=False)
     returned_date = db.Column(db.DateTime)
     returned = db.Column(db.Boolean, default=False, index=True)
@@ -128,13 +128,31 @@ class Borrowing(db.Model):
         """Check if borrowing is overdue"""
         if self.returned:
             return False
-        return datetime.utcnow() > self.due_date
-    
+
+        # Handle both naive and aware datetimes (for SQLite compatibility)
+        now = datetime.now(timezone.utc)
+        due = self.due_date
+
+        # If due_date is naive (from SQLite), make comparison naive
+        if due.tzinfo is None:
+            now = datetime.utcnow()
+
+        return now > due
+
     def days_overdue(self):
         """Calculate days overdue"""
         if not self.is_overdue():
             return 0
-        return (datetime.utcnow() - self.due_date).days
+
+        # Handle both naive and aware datetimes (for SQLite compatibility)
+        now = datetime.now(timezone.utc)
+        due = self.due_date
+
+        # If due_date is naive (from SQLite), make comparison naive
+        if due.tzinfo is None:
+            now = datetime.utcnow()
+
+        return (now - due).days
 
 class Reservation(db.Model):
     """Reservation model - represents book reservations when not available"""
@@ -143,7 +161,7 @@ class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False, index=True)
-    reserved_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    reserved_date = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     status = db.Column(db.String(20), default='active')  # active, fulfilled, cancelled
     priority = db.Column(db.Integer, default=1)  # for queue ordering
     notified = db.Column(db.Boolean, default=False)
