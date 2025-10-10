@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0f\x62orrowing.proto\x12\tborrowing\"1\n\rBorrowRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0f\n\x07\x62ook_id\x18\x02 \x01(\t\"3\n\x0e\x42orrowResponse\x12\x11\n\tborrow_id\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\"\"\n\rReturnRequest\x12\x11\n\tborrow_id\x18\x01 \x01(\t\" \n\x0eReturnResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"\x1e\n\x0bUserRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\"H\n\x15\x42orrowedBooksResponse\x12/\n\x0e\x62orrowed_books\x18\x01 \x03(\x0b\x32\x17.borrowing.BorrowedBook\"l\n\x0c\x42orrowedBook\x12\x11\n\tborrow_id\x18\x01 \x01(\t\x12\x0f\n\x07\x62ook_id\x18\x02 \x01(\t\x12\x15\n\rborrowed_date\x18\x03 \x01(\t\x12\x10\n\x08\x64ue_date\x18\x04 \x01(\t\x12\x0f\n\x07user_id\x18\x05 \x01(\t2\xe6\x01\n\x10\x42orrowingService\x12\x41\n\nBorrowBook\x12\x18.borrowing.BorrowRequest\x1a\x19.borrowing.BorrowResponse\x12\x41\n\nReturnBook\x12\x18.borrowing.ReturnRequest\x1a\x19.borrowing.ReturnResponse\x12L\n\x10GetBorrowedBooks\x12\x16.borrowing.UserRequest\x1a .borrowing.BorrowedBooksResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0f\x62orrowing.proto\x12\tborrowing\"1\n\rBorrowRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0f\n\x07\x62ook_id\x18\x02 \x01(\t\"3\n\x0e\x42orrowResponse\x12\x11\n\tborrow_id\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\"\"\n\rReturnRequest\x12\x11\n\tborrow_id\x18\x01 \x01(\t\"L\n\x0eReturnResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12*\n\tborrowing\x18\x02 \x01(\x0b\x32\x17.borrowing.BorrowedBook\"\x1e\n\x0bUserRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\"H\n\x15\x42orrowedBooksResponse\x12/\n\x0e\x62orrowed_books\x18\x01 \x03(\x0b\x32\x17.borrowing.BorrowedBook\"\xd4\x01\n\x0c\x42orrowedBook\x12\x11\n\tborrow_id\x18\x01 \x01(\t\x12\x0f\n\x07\x62ook_id\x18\x02 \x01(\t\x12\x15\n\rborrowed_date\x18\x03 \x01(\t\x12\x10\n\x08\x64ue_date\x18\x04 \x01(\t\x12\x0f\n\x07user_id\x18\x05 \x01(\t\x12\x10\n\x08returned\x18\x06 \x01(\x08\x12\x15\n\rreturned_date\x18\x07 \x01(\t\x12\x13\n\x0b\x66ine_amount\x18\x08 \x01(\x02\x12\x12\n\nis_overdue\x18\t \x01(\x08\x12\x14\n\x0c\x64\x61ys_overdue\x18\n \x01(\x05\x32\xe6\x01\n\x10\x42orrowingService\x12\x41\n\nBorrowBook\x12\x18.borrowing.BorrowRequest\x1a\x19.borrowing.BorrowResponse\x12\x41\n\nReturnBook\x12\x18.borrowing.ReturnRequest\x1a\x19.borrowing.ReturnResponse\x12L\n\x10GetBorrowedBooks\x12\x16.borrowing.UserRequest\x1a .borrowing.BorrowedBooksResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -38,13 +38,13 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_RETURNREQUEST']._serialized_start=134
   _globals['_RETURNREQUEST']._serialized_end=168
   _globals['_RETURNRESPONSE']._serialized_start=170
-  _globals['_RETURNRESPONSE']._serialized_end=202
-  _globals['_USERREQUEST']._serialized_start=204
-  _globals['_USERREQUEST']._serialized_end=234
-  _globals['_BORROWEDBOOKSRESPONSE']._serialized_start=236
-  _globals['_BORROWEDBOOKSRESPONSE']._serialized_end=308
-  _globals['_BORROWEDBOOK']._serialized_start=310
-  _globals['_BORROWEDBOOK']._serialized_end=418
-  _globals['_BORROWINGSERVICE']._serialized_start=421
-  _globals['_BORROWINGSERVICE']._serialized_end=651
+  _globals['_RETURNRESPONSE']._serialized_end=246
+  _globals['_USERREQUEST']._serialized_start=248
+  _globals['_USERREQUEST']._serialized_end=278
+  _globals['_BORROWEDBOOKSRESPONSE']._serialized_start=280
+  _globals['_BORROWEDBOOKSRESPONSE']._serialized_end=352
+  _globals['_BORROWEDBOOK']._serialized_start=355
+  _globals['_BORROWEDBOOK']._serialized_end=567
+  _globals['_BORROWINGSERVICE']._serialized_start=570
+  _globals['_BORROWINGSERVICE']._serialized_end=800
 # @@protoc_insertion_point(module_scope)

@@ -29,11 +29,11 @@ class UserClient:
         request = user_pb2.GetUserRequest(id=user_id)
         return self.stub.GetUser(request)
 
-    def authenticate_user(self, email, password):
+    def authenticate_user(self, student_id):
         """
-        Calls the AuthenticateUser RPC on the server.
+        Calls the AuthenticateUser RPC on the server using student_id.
         """
-        request = user_pb2.AuthenticateUserRequest(email=email, password=password)
+        request = user_pb2.AuthenticateUserRequest(student_id=student_id)
         return self.stub.AuthenticateUser(request)
 
     def list_users(self):

@@ -143,6 +143,21 @@ services:
     networks:
       - library_network
 
+  # ------------------------------------------------------------------
+  # 7. Frontend Service
+  # ------------------------------------------------------------------
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - gateway_service
+    networks:
+      - library_network
+
 
 volumes:
   user_db_data:

@@ -32,6 +32,7 @@ message ReturnRequest {
 
 message ReturnResponse {
   string status = 1;
+  BorrowedBook borrowing = 2; // Include full borrowing details with fine info
 }
 
 message UserRequest {
@@ -48,4 +49,9 @@ message BorrowedBook {
   string borrowed_date = 3;
   string due_date = 4;
   string user_id = 5;
+  bool returned = 6;
+  string returned_date = 7;
+  float fine_amount = 8;
+  bool is_overdue = 9;
+  int32 days_overdue = 10;
 }

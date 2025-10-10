@@ -1,7 +1,8 @@
 #SQLAlchemy MODELS (User)
 # Defines the User Alchemy class
 
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, DateTime
+from sqlalchemy.sql import func
 from .db import Base, engine # Import engine from db.py for table creation
 from . import user_pb2 # Import the generated protobuf file for enums
 import enum
@@ -18,15 +19,23 @@ class User(Base):
     __tablename__ = "users"
 
     # id should be String to hold UUIDs generated in the server
-    id = Column(String, primary_key=True, index=True) 
+    id = Column(String, primary_key=True, index=True)
+    student_id = Column(String, unique=True, index=True, nullable=True)  # Added for compatibility
     name = Column(String, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
-    
+
     # --- FIX 1: Renamed 'password' to 'password_hash' ---
-    password_hash = Column(String, nullable=False) 
-    
+    password_hash = Column(String, nullable=False)
+
     # --- FIX 2: Using String column to store the enum name (e.g., "STUDENT") ---
-    user_type = Column(String, default=UserType.STUDENT.name, nullable=False) 
+    user_type = Column(String, default=UserType.STUDENT.name, nullable=False)
+
+    # Role field for compatibility with arch1 (maps to user_type)
+    role = Column(String, default='student', nullable=False)
+
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now()) 
 
 # Database Initialization
 def create_db_and_tables():

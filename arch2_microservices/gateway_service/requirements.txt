@@ -1,8 +1,10 @@
-Flask 
-grpcio 
+Flask
+flask-cors                # CORS support for frontend
+grpcio
 grpcio-tools
+PyJWT                     # JWT authentication
 
 sqlalchemy
-# SQLAlchemy==2.0.43       
+# SQLAlchemy==2.0.43
 psycopg2-binary==2.9.6    # Postgres driver
 bcrypt                    # for password hashing 

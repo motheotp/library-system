@@ -30,10 +30,12 @@ enum UserType {
 // User object
 message User {
   string id = 1;
-  string name = 2;
-  string email = 3;
-  string password_hash = 4; // only stored internally
-  UserType user_type = 5; // user type --> student or staff
+  string student_id = 2;
+  string name = 3;
+  string email = 4;
+  string password_hash = 5; // only stored internally
+  UserType user_type = 6; // user type --> student or staff
+  string role = 7; // role string for compatibility
 }
 
 // --- CreateUser ---
@@ -59,13 +61,12 @@ message GetUserResponse {
 
 // --- AuthenticateUser ---
 message AuthenticateUserRequest {
-  string email = 1;
-  string password = 2;
+  string student_id = 1; // Changed to student_id for simple auth
 }
 
 message AuthenticateUserResponse {
-  string user_id = 1;
-  string token = 2; // e.g., JWT or session token
+  User user = 1; // Return full user object
+  string message = 2;
 }
 
 // --- ListUsers ---
