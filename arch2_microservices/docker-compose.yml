@@ -143,7 +143,17 @@ services:
     networks:
       - library_network
 
-
+# ------------------------------------------------------------------
+  # 8. Frontend Web Interface
+  # ------------------------------------------------------------------
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    networks:
+      - library_network
 volumes:
   user_db_data:
   book_db_data:
