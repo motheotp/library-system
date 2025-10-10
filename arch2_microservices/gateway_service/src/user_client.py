@@ -3,7 +3,7 @@ from . import user_pb2, user_pb2_grpc
 
 
 class UserClient:
-    def __init__(self, host="localhost", port=50051):
+    def __init__(self, host="user_service", port=50051):
         """
         Initialize a gRPC channel and stub for UserService.
         """

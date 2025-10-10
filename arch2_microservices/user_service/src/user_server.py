@@ -1,59 +1,140 @@
 import grpc
 from concurrent import futures
 import time
-
+import uuid # <--- For generating unique user IDs
 from . import user_pb2, user_pb2_grpc
 
-# In-memory "database" for demo
-users_db = {}
-next_id = 1
+# --- Database and CRUD logic ---
+from .db import get_db #for the session context
+from .models import create_db_and_tables, User # <--- Import table creation function and User model
+from . import crud 
+# --------------------------------------------
 
+
+"""
+1.  **Docker Compose** sets the database URL via `DATABASE_URL`.
+2.  **`db.py`** reads that URL and provides sessions via `get_db()`.
+3.  **`models.py`** defines the schema using `String` for `id` and `user_type` and includes the `password_hash` column.
+4.  **`crud.py`** handles the logic, hashing the password before creation and correctly mapping the Protobuf enum to the database string type.
+"""
+
+# # In-memory "database" for demo
+# users_db = {}
+# next_id = 1
 
 class UserService(user_pb2_grpc.UserServiceServicer):
+    
     def CreateUser(self, request, context):
-        global next_id
-        user_id = str(next_id)
-        next_id += 1
-
-        # Store user
-        users_db[user_id] = {
-            "id": user_id,
-            "name": request.name,
-            "email": request.email,
-            "password_hash": request.password,  # should we hash this?
-            "user_type": request.user_type
-        }
-
-        user = user_pb2.User(
-            id=user_id,
-            name=request.name,
-            email=request.email,
-            user_type=request.user_type
-        )
-        return user_pb2.CreateUserResponse(user=user)
+        # 1. Generate a universally unique ID (UUID)
+        user_id = str(uuid.uuid4()) #UUID
+        
+        try:
+            with get_db() as db: # <--- CHANGE: Open database session
+                # 2. Use CRUD function to insert user into PostgreSQL
+                db_user = crud.create_user(db, request, user_id)
+                
+                # 3. Convert the resulting SQLAlchemy model object to a Protobuf message
+                user_proto = crud.user_model_to_proto(db_user)
+                # logging.info(f" CreateUser RPC completed for {user.email}")
+                return user_pb2.CreateUserResponse(user=user_proto)
+        except Exception as e:
+            # Handle database errors (e.g., email unique constraint violation)
+            print(f"Error creating user: {e}")
+            context.abort(grpc.StatusCode.INTERNAL, "Could not create user due to database error.")
 
     def GetUser(self, request, context):
-        u = users_db.get(request.id)
-        if not u:
-            context.abort(grpc.StatusCode.NOT_FOUND, "User not found")
-        user = user_pb2.User(**u)
-        return user_pb2.GetUserResponse(user=user)
+        try:
+            with get_db() as db: # <--- CHANGE: Open database session
+                # 1. Use CRUD to fetch user by ID
+                db_user = crud.get_user_by_id(db, request.id)
+                
+                if not db_user:
+                    # 2. Handle not found error
+                    context.abort(grpc.StatusCode.NOT_FOUND, f"User with ID {request.id} not found")
+                
+                # 3. Convert model to proto
+                user_proto = crud.user_model_to_proto(db_user)
+                return user_pb2.GetUserResponse(user=user_proto)
+        except Exception as e:
+            print(f"Error retrieving user: {e}")
+            context.abort(grpc.StatusCode.INTERNAL, "Could not retrieve user due to database error.")
 
     def AuthenticateUser(self, request, context):
-        # Simple linear search for demo
-        for u in users_db.values():
-            if u["email"] == request.email and u["password_hash"] == request.password:
-                # Return dummy token
-                return user_pb2.AuthenticateUserResponse(user_id=u["id"], token="fake-jwt-token")
-        context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid credentials")
+        try:
+            # 1. Hash the incoming password for comparison
+            incoming_password_hash = crud.hash_password(request.password) # <--- CHANGE: Use hash_password from crud
+            
+            with get_db() as db: # <--- CHANGE: Open database session
+                # 2. Fetch user by email    
+                db_user = crud.get_user_by_email(db, request.email)
+                print(f"DB user lookup for {request.email}: {db_user}")
+                
+
+                if not db_user:
+                    # User email not found
+                    context.abort(grpc.StatusCode.UNAUTHENTICATED, "User not found.")
+                
+                 # Hash incoming password and compare
+                
+                print("Incoming hash:", incoming_password_hash)
+                print("Stored hash:", db_user.password_hash, type(db_user.password_hash))
+
+
+                if db_user.password_hash != incoming_password_hash:
+                    context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid credentials.")
+
+                # # 3. Compare the generated hash with the stored hash
+                # if db_user.password_hash == incoming_password_hash:
+                #     # Authentication successful. Return a dummy token for now.
+                #     return user_pb2.AuthenticateUserResponse(
+                #         user_id=db_user.id, 
+                #         token=f"TOKEN_{db_user.id}" # <--- CHANGE: Returning user ID from DB
+                #     )
+
+                # Success
+                return user_pb2.AuthenticateUserResponse(
+                    user_id=str(db_user.id),
+                    token=f"TOKEN_{db_user.id}"
+                )
+            
+                # else:
+                #     # Password mismatch
+                #     context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid credentials.")
+       
+        except Exception as e:
+            # --- DEBUGGING LINE ADDED ---
+            print(f"Exception Type: {type(e)}, Message: {e}") 
+            # ----------------------------
+            print(f"Error during authentication: {e}")
+
+            context.abort(StatusCode.INTERNAL, f"Authentication failed due to server error: {e}")
+            # context.abort(grpc.StatusCode.INTERNAL, "Authentication failed due to server error.")
+        
+        # except Exception as e:
+        #     print(f"Error during authentication: {e}")
+        #     context.abort(grpc.StatusCode.INTERNAL, "Authentication failed due to server error.")
 
     def ListUsers(self, request, context):
-        return user_pb2.ListUsersResponse(
-            users=[user_pb2.User(**u) for u in users_db.values()]
-        )
+        # NOTE: Listing all users is not a standard CRUD function but is necessary here.
+        try:
+            with get_db() as db: # <--- CHANGE: Open database session
+                # 1. Query all users from the database
+                all_db_users = db.query(User).all() # <--- CHANGE: Direct DB query
+                
+                # 2. Convert all model objects to Protobuf messages
+                user_protos = [crud.user_model_to_proto(u) for u in all_db_users]
+                
+                return user_pb2.ListUsersResponse(users=user_protos)
+        except Exception as e:
+            print(f"Error listing users: {e}")
+            context.abort(grpc.StatusCode.INTERNAL, "Could not list users due to database error.")
 
 
 def serve():
+    # --- NEW: Initialize the database tables on startup ---
+    create_db_and_tables() 
+    # -----------------------------------------------------
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     user_pb2_grpc.add_UserServiceServicer_to_server(UserService(), server)
     server.add_insecure_port('[::]:50051')
@@ -66,5 +147,12 @@ def serve():
         server.stop(0)
 
 
+
+
 if __name__ == "__main__":
     serve()
+    logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s'
+)
+

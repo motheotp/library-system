@@ -2,7 +2,7 @@ import grpc
 from . import borrowing_pb2, borrowing_pb2_grpc
 
 class BorrowingClient:
-    def __init__(self, host="localhost", port=50052):
+    def __init__(self, host="borrowing_service", port=50055):
         self.channel = grpc.insecure_channel(f"{host}:{port}")
         self.stub = borrowing_pb2_grpc.BorrowingServiceStub(self.channel)
 

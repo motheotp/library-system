@@ -2,7 +2,7 @@ import grpc
 from . import book_pb2, book_pb2_grpc
 
 class BookClient:
-    def __init__(self, host="localhost", port=50053):
+    def __init__(self, host="book_service", port=50053):
         self.channel = grpc.insecure_channel(f"{host}:{port}")
         self.stub = book_pb2_grpc.BookServiceStub(self.channel)
 

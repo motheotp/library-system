@@ -11,7 +11,7 @@ def client():
 
 def test_add_and_get_book(client):
     # Add a book
-    add_resp = client.add_book("The Great Gatsby", "F. Scott Fitzgerald", "9780743273565")
+    add_resp = client.add_book("The Great Gatsby", "F. Scott Fitzgerald", "9780743273565")      #Did I update this??????????????????????????????????????
     book_id = add_resp.book.id
     assert add_resp.book.title == "The Great Gatsby"
     assert add_resp.book.author == "F. Scott Fitzgerald"
