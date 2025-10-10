@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from src.user_client import UserClient
 from src.book_client import BookClient
 from src.borrowing_client import BorrowingClient
@@ -6,6 +7,7 @@ import grpc
 import logging
 
 app = Flask(__name__)
+CORS(app)
 logging.basicConfig(level=logging.INFO)
 
 # Initialize gRPC clients to None

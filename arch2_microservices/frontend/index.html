@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: slideIn 0.3s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 30px;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .response.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .response.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .data-list {
+            margin-top: 20px;
+        }
+
+        .data-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .data-item h3 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .data-item p {
+            color: #666;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Library Management System</h1>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('users')">Users</button>
+            <button class="tab-button" onclick="switchTab('books')">Books</button>
+            <button class="tab-button" onclick="switchTab('borrowings')">Borrowings</button>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="users" class="tab-content active">
+            <h2>User Management</h2>
+
+            <div class="form-section">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Create New User</h3>
+                <div class="input-row">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="userName" placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="userEmail" placeholder="john@example.com">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="userPassword" placeholder="••••••••">
+                    </div>
+                    <div class="form-group">
+                        <label>User Type</label>
+                        <select id="userType">
+                            <option value="STUDENT">Student</option>
+                            <!-- <option value="teacher">Teacher</option> -->
+                            <option value="STAFF">Librarian</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="createUser()">Create User</button>
+                <div id="userResponse" class="response"></div>
+            </div>
+
+            <div class="form-section">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Get User by ID</h3>
+                <div class="form-group">
+                    <label>User ID</label>
+                    <input type="text" id="getUserId" placeholder="e.g., 1">
+                </div>
+                <button onclick="getUser()">Get User</button>
+                <div id="userDetailResponse" class="response"></div>
+            </div>
+
+            <div class="form-section">
+                <h3 style="color: #667eea; margin-bottom: 15px;">All Users</h3>
+                <button onclick="listUsers()">Load All Users</button>
+                <div id="usersList" class="data-list"></div>
+            </div>
+        </div>
+
+        <!-- Books Tab -->
+        <div id="books" class="tab-content">
+            <h2>Book Management</h2>
+
+            <div class="form-section">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Add New Book</h3>
+                <div class="input-row">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="bookTitle" placeholder="The Great Gatsby">
+                    </div>
+                    <div class="form-group">
+                        <label>Author</label>
+                        <input type="text" id="bookAuthor" placeholder="F. Scott Fitzgerald">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>ISBN</label>
+                    <input type="text" id="bookIsbn" placeholder="978-0743273565">
+                </div>
+                <button onclick="addBook()">Add Book</button>
+                <div id="bookResponse" class="response"></div>
+            </div>
+
+            <div class="form-section">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Get Book by ID</h3>
+                <div class="form-group">
+                    <label>Book ID</label>
+                    <input type="text" id="getBookId" placeholder="e.g., 1">
+                </div>
+                <button onclick="getBook()">Get Book</button>
+                <div id="bookDetailResponse" class="response"></div>
+            </div>
+
+            <div class="form-section">
+                <h3 style="color: #667eea; margin-bottom: 15px;">All Books</h3>
+                <button onclick="listBooks()">Load All Books</button>
+                <div id="booksList" class="data-list"></div>
+            </div>
+        </div>
+
+        <!-- Borrowings Tab -->
+        <div id="borrowings" class="tab-content">
+            <h2>Borrowing Management</h2>
+
+            <div class="form-section">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Borrow a Book</h3>
+                <div class="input-row">
+                    <div class="form-group">
+                        <label>User ID</label>
+                        <input type="text" id="borrowUserId" placeholder="e.g., 1">
+                    </div>
+                    <div class="form-group">
+                        <label>Book ID</label>
+                        <input type="text" id="borrowBookId" placeholder="e.g., 1">
+                    </div>
+                </div>
+                <button onclick="borrowBook()">Borrow Book</button>
+                <div id="borrowResponse" class="response"></div>
+            </div>
+
+            <div class="form-section">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Return a Book</h3>
+                <div class="form-group">
+                    <label>Borrow ID</label>
+                    <input type="text" id="returnBorrowId" placeholder="e.g., 1">
+                </div>
+                <button onclick="returnBook()">Return Book</button>
+                <div id="returnResponse" class="response"></div>
+            </div>
+
+            <div class="form-section">
+                <h3 style="color: #667eea; margin-bottom: 15px;">View User's Borrowings</h3>
+                <div class="form-group">
+                    <label>User ID</label>
+                    <input type="text" id="viewBorrowUserId" placeholder="e.g., 1">
+                </div>
+                <button onclick="getUserBorrowings()">View Borrowings</button>
+                <div id="borrowingsList" class="data-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function showResponse(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `response ${isSuccess ? 'success' : 'error'}`;
+        }
+
+        async function createUser() {
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+            const userType = document.getElementById('userType').value;
+
+            if (!name || !email || !password) {
+                showResponse('userResponse', 'Please fill in all fields', false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/users`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password, user_type: userType })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showResponse('userResponse', `User created successfully! ID: ${data.id}`, true);
+                    document.getElementById('userName').value = '';
+                    document.getElementById('userEmail').value = '';
+                    document.getElementById('userPassword').value = '';
+                } else {
+                    showResponse('userResponse', `Error: ${data.error}`, false);
+                }
+            } catch (error) {
+                showResponse('userResponse', `Error: ${error.message}`, false);
+            }
+        }
+
+        async function getUser() {
+            const userId = document.getElementById('getUserId').value;
+            if (!userId) {
+                showResponse('userDetailResponse', 'Please enter a user ID', false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/users/${userId}`);
+                const data = await response.json();
+                if (response.ok) {
+                    const html = `<div class="data-item"><h3>${data.name}</h3><p><strong>Email:</strong> ${data.email}</p><p><strong>ID:</strong> ${data.id}</p></div>`;
+                    document.getElementById('userDetailResponse').innerHTML = html;
+                    document.getElementById('userDetailResponse').className = 'response success';
+                } else {
+                    showResponse('userDetailResponse', `Error: ${data.error}`, false);
+                }
+            } catch (error) {
+                showResponse('userDetailResponse', `Error: ${error.message}`, false);
+            }
+        }
+
+        async function listUsers() {
+            try {
+                const response = await fetch(`${API_URL}/users`);
+                const data = await response.json();
+                if (response.ok && data.users.length > 0) {
+                    const html = data.users.map(u => 
+                        `<div class="data-item"><h3>${u.name}</h3><p><strong>Email:</strong> ${u.email}</p><p><strong>ID:</strong> ${u.id}</p></div>`
+                    ).join('');
+                    document.getElementById('usersList').innerHTML = html;
+                } else {
+                    document.getElementById('usersList').innerHTML = '<p style="text-align: center; color: #999;">No users found</p>';
+                }
+            } catch (error) {
+                document.getElementById('usersList').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+
+        async function addBook() {
+            const title = document.getElementById('bookTitle').value;
+            const author = document.getElementById('bookAuthor').value;
+            const isbn = document.getElementById('bookIsbn').value;
+
+            if (!title || !author || !isbn) {
+                showResponse('bookResponse', 'Please fill in all fields', false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/books`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, author, isbn })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showResponse('bookResponse', `Book added successfully! ID: ${data.id}`, true);
+                    document.getElementById('bookTitle').value = '';
+                    document.getElementById('bookAuthor').value = '';
+                    document.getElementById('bookIsbn').value = '';
+                } else {
+                    showResponse('bookResponse', `Error: ${data.error}`, false);
+                }
+            } catch (error) {
+                showResponse('bookResponse', `Error: ${error.message}`, false);
+            }
+        }
+
+        async function getBook() {
+            const bookId = document.getElementById('getBookId').value;
+            if (!bookId) {
+                showResponse('bookDetailResponse', 'Please enter a book ID', false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/books/${bookId}`);
+                const data = await response.json();
+                if (response.ok) {
+                    const html = `<div class="data-item"><h3>${data.title}</h3><p><strong>Author:</strong> ${data.author}</p><p><strong>ISBN:</strong> ${data.isbn}</p><p><strong>Status:</strong> ${data.status}</p><p><strong>ID:</strong> ${data.id}</p></div>`;
+                    document.getElementById('bookDetailResponse').innerHTML = html;
+                    document.getElementById('bookDetailResponse').className = 'response success';
+                } else {
+                    showResponse('bookDetailResponse', `Error: ${data.error}`, false);
+                }
+            } catch (error) {
+                showResponse('bookDetailResponse', `Error: ${error.message}`, false);
+            }
+        }
+
+        async function listBooks() {
+            try {
+                const response = await fetch(`${API_URL}/books`);
+                const data = await response.json();
+                if (response.ok && data.books.length > 0) {
+                    const html = data.books.map(b => 
+                        `<div class="data-item"><h3>${b.title}</h3><p><strong>Author:</strong> ${b.author}</p><p><strong>ISBN:</strong> ${b.isbn}</p><p><strong>Status:</strong> ${b.status}</p></div>`
+                    ).join('');
+                    document.getElementById('booksList').innerHTML = html;
+                } else {
+                    document.getElementById('booksList').innerHTML = '<p style="text-align: center; color: #999;">No books found</p>';
+                }
+            } catch (error) {
+                document.getElementById('booksList').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+
+        async function borrowBook() {
+            const userId = document.getElementById('borrowUserId').value;
+            const bookId = document.getElementById('borrowBookId').value;
+
+            if (!userId || !bookId) {
+                showResponse('borrowResponse', 'Please fill in all fields', false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/borrowings`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, book_id: bookId })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showResponse('borrowResponse', `Book borrowed successfully! Borrow ID: ${data.borrow_id}`, true);
+                    document.getElementById('borrowUserId').value = '';
+                    document.getElementById('borrowBookId').value = '';
+                } else {
+                    showResponse('borrowResponse', `Error: ${data.error}`, false);
+                }
+            } catch (error) {
+                showResponse('borrowResponse', `Error: ${error.message}`, false);
+            }
+        }
+
+        async function returnBook() {
+            const borrowId = document.getElementById('returnBorrowId').value;
+            if (!borrowId) {
+                showResponse('returnResponse', 'Please enter a borrow ID', false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/borrowings/${borrowId}/return`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showResponse('returnResponse', `Book returned successfully!`, true);
+                    document.getElementById('returnBorrowId').value = '';
+                } else {
+                    showResponse('returnResponse', `Error: ${data.error}`, false);
+                }
+            } catch (error) {
+                showResponse('returnResponse', `Error: ${error.message}`, false);
+            }
+        }
+
+        async function getUserBorrowings() {
+            const userId = document.getElementById('viewBorrowUserId').value;
+            if (!userId) {
+                document.getElementById('borrowingsList').innerHTML = '<p style="color: red;">Please enter a user ID</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/users/${userId}/borrowings`);
+                const data = await response.json();
+                if (response.ok && data.borrowed_books && data.borrowed_books.length > 0) {
+                    const html = data.borrowed_books.map(b => 
+                        `<div class="data-item"><h3>Borrow ID: ${b.borrow_id}</h3><p><strong>Book ID:</strong> ${b.book_id}</p><p><strong>Borrowed:</strong> ${b.borrowed_date}</p><p><strong>Due:</strong> ${b.due_date}</p></div>`
+                    ).join('');
+                    document.getElementById('borrowingsList').innerHTML = html;
+                } else {
+                    document.getElementById('borrowingsList').innerHTML = '<p style="text-align: center; color: #999;">No borrowings found</p>';
+                }
+            } catch (error) {
+                document.getElementById('borrowingsList').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
