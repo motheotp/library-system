@@ -1,0 +1,6 @@
+grpcio
+grpcio-tools
+pytest
+
+sqlalchemy 
+psycopg2-binary

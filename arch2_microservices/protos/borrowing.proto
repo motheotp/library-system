@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package borrowing;
+
+// Borrowing service definition
+service BorrowingService {
+  // Borrow a book
+  rpc BorrowBook (BorrowRequest) returns (BorrowResponse);
+
+  // Return a book
+  rpc ReturnBook (ReturnRequest) returns (ReturnResponse);
+
+  // Get a user's borrowed books
+  rpc GetBorrowedBooks (UserRequest) returns (BorrowedBooksResponse);
+}
+
+// Messages
+
+message BorrowRequest {
+  string user_id = 1;
+  string book_id = 2;
+}
+
+message BorrowResponse {
+  string borrow_id = 1;
+  string status = 2; // e.g., "success" or "failed"
+}
+
+message ReturnRequest {
+  string borrow_id = 1;
+}
+
+message ReturnResponse {
+  string status = 1;
+}
+
+message UserRequest {
+  string user_id = 1;
+}
+
+message BorrowedBooksResponse {
+  repeated BorrowedBook borrowed_books = 1;
+}
+
+message BorrowedBook {
+  string borrow_id = 1;
+  string book_id = 2;
+  string borrowed_date = 3;
+  string due_date = 4;
+  string user_id = 5;
+}

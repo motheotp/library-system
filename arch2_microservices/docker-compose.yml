@@ -1,0 +1,154 @@
+
+
+services:
+  # ------------------------------------------------------------------
+  # 1. PostgreSQL Database for User Service
+  # ------------------------------------------------------------------
+  user_db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      # Database access variables (used by user_service/src/database.py)
+      POSTGRES_USER: user_service_user
+      POSTGRES_PASSWORD: strong_password
+      POSTGRES_DB: user_service_db
+    volumes:
+      # Persistent storage for database data
+      - user_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_service_user -d user_service_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - library_network
+
+  # Repeat this block for book_db and borrowing_db if you need separate instances/schemas
+  # book_db:
+  #   ... configuration for book service database ...
+
+
+   # ------------------------------------------------------------------
+  # 2. PostgreSQL for Book Service
+  # ------------------------------------------------------------------
+  book_db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: book_service_user
+      POSTGRES_PASSWORD: strong_password
+      POSTGRES_DB: book_service_db
+    volumes:
+      - book_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U book_service_user -d book_service_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - library_network
+
+
+   # ------------------------------------------------------------------
+  # 3. PostgreSQL for Borrowing Service
+  # ------------------------------------------------------------------
+  borrowing_db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: borrowing_service_user
+      POSTGRES_PASSWORD: strong_password
+      POSTGRES_DB: borrowing_service_db
+    volumes:
+      - borrowing_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U borrowing_service_user -d borrowing_service_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - library_network
+  # ------------------------------------------------------------------
+  # 4. Microservices - User Service
+  # ------------------------------------------------------------------
+  user_service:
+    build: 
+      context: ./user_service
+      dockerfile: Dockerfile.user # You'll create this later
+    ports:
+      - "50051:50051" # Map internal gRPC port
+    environment:
+      # Database URL configuration for SQLAlchemy
+      # NOTE: 'user_db' is the hostname, automatically resolved by Docker Compose
+      DATABASE_URL: "postgresql+psycopg2://user_service_user:strong_password@user_db:5432/user_service_db"
+
+      USER_SERVICE_PORT: 50051
+    depends_on:
+      user_db:
+        condition: service_healthy
+
+    networks:
+      - library_network
+
+
+# ------------------------------------------------------------------
+  # 5. Book Service
+  # ------------------------------------------------------------------
+  book_service:
+    build:
+      context: ./book_service
+      dockerfile: Dockerfile.book
+    ports:
+      - "50053:50053"
+    environment:
+      DATABASE_URL: "postgresql+psycopg2://book_service_user:strong_password@book_db:5432/book_service_db"
+      BOOK_SERVICE_PORT: 50053
+    depends_on:
+      book_db:
+        condition: service_healthy
+
+    networks:
+      - library_network
+
+# ------------------------------------------------------------------
+  # 6. Borrowing Service
+  # ------------------------------------------------------------------
+  borrowing_service:
+    build:
+      context: ./borrowing_service
+      dockerfile: Dockerfile.borrowing
+    ports:
+      - "50055:50055"
+    environment:
+      DATABASE_URL: "postgresql+psycopg2://borrowing_service_user:strong_password@borrowing_db:5432/borrowing_service_db"
+      BORROWING_SERVICE_PORT: 50055
+    depends_on:
+      borrowing_db:
+        condition: service_healthy
+
+    networks:
+      - library_network
+
+  gateway_service:
+    build:
+      context: ./gateway_service
+      dockerfile: Dockerfile.gateway
+    container_name: gateway_service
+    ports:
+      - "8000:8000"
+    depends_on:
+      - user_service
+      - book_service
+      - borrowing_service
+    networks:
+      - library_network
+
+
+volumes:
+  user_db_data:
+  book_db_data:
+  borrowing_db_data:
+
+networks:
+  library_network:
+    driver: bridge
