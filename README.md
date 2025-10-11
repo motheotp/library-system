@@ -1,118 +1,305 @@
-# Library System
+# Library Management System
 
-Distributed Library Management System — two architectures (microservices + layered monolith).
+A comprehensive library management system demonstrating two different architectural patterns: **Layered Architecture** and **Microservices Architecture**.
 
-## Overview
+This project showcases the same application built with two distinct approaches, allowing you to compare and understand the trade-offs between monolithic and distributed architectures.
 
-This project demonstrates two approaches to building a distributed library management system:
+## 🏗️ Architecture Implementations
 
-1. **Layered Monolith** (`arch1_layered/`):  
-   A traditional Flask application using a layered architecture (models, services, routes) with PostgreSQL and Redis for caching.
+### [Architecture 1: Layered (3-Tier)]
+Traditional monolithic architecture with clear separation of concerns.
 
-2. **Microservices** (`arch2_microservices/`):  
-   A microservices-based architecture (WIP) with separate services for books, users, borrowing, and a gateway.
+```
+Frontend → Nginx Load Balancer → Backend Instances → PostgreSQL + Redis
+```
 
-## Features
+**Best for**: Smaller teams, simpler deployments, lower operational complexity
 
-- User registration and authentication
-- Book catalog with search and filtering
-- Borrowing and returning books (with overdue and fine calculation)
-- Book reservation system
-- System statistics and admin endpoints
-- Caching with Redis for performance
-- Dockerized for easy deployment
+---
 
-## Project Structure
+### [Architecture 2: Microservices]
+Distributed architecture with independent services communicating via gRPC.
+
+```
+Frontend → API Gateway → [User Service, Book Service, Borrowing Service] → Individual Databases
+```
+
+**Best for**: Large teams, independent scaling, service autonomy
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Docker (20.10+)
+- Docker Compose (1.29+)
+- 4-6GB available RAM
+- Ports 3000 and 8080 available
+
+### Choose Your Architecture
+
+#### Option 1: Layered Architecture
+```bash
+cd arch1_layered
+docker-compose -f docker-compose-layered.yml up -d --build
+
+cd ../infrastructure
+docker-compose -f docker-compose.infrastructure.yml up -d --build
+```
+
+#### Option 2: Microservices Architecture
+```bash
+cd arch2_microservices
+docker-compose up -d --build
+```
+
+### Access the Application
+- **Frontend**: http://localhost:3000
+- **API**: http://localhost:8080/api
+- **Health Check**: http://localhost:8080/api/health
+
+## 📊 Architecture Comparison
+
+| Feature | Layered (Arch1) | Microservices (Arch2) |
+|---------|----------------|----------------------|
+| **Deployment Complexity** | Low ⭐ | High ⭐⭐⭐ |
+| **Scalability** | Horizontal (entire app) | Independent per service |
+| **Database** | Single shared DB | DB per service |
+| **Communication** | Direct function calls | gRPC over network |
+| **Team Collaboration** | Centralized | Distributed ownership |
+| **Resource Usage** | ~2GB RAM | ~4-6GB RAM |
+| **Development Speed** | Fast for small teams | Slower initially, faster at scale |
+| **Debugging** | Easy ⭐ | Complex ⭐⭐⭐ |
+| **Fault Isolation** | Low | High |
+| **Technology Flexibility** | Limited | High |
+| **Operational Overhead** | Low | High |
+| **Best For** | Startups, MVPs, small apps | Large apps, multiple teams |
+
+## 🎯 Features
+
+Both architectures implement the same features:
+
+- ✅ **User Management**: Registration, authentication, role-based access
+- ✅ **Book Catalog**: Add, view, search, update books with metadata
+- ✅ **Borrowing System**: Borrow/return books with inventory tracking
+- ✅ **Admin Dashboard**: Statistics and system monitoring
+- ✅ **Real-time Inventory**: Automatic updates when books are borrowed/returned
+- ✅ **Security**: JWT-based authentication
+- ✅ **Modern Frontend**: React with responsive design
+
+## 📁 Project Structure
 
 ```
 library-system/
+├── README.md                          # This file
+├── frontend/                          # Shared React frontend
+│   ├── src/                          # React components
+│   ├── Dockerfile                    # Production build (Arch2)
+│   ├── Dockerfile.arch1              # Production build (Arch1)
+│   ├── nginx.conf                    # Nginx config for Arch2
+│   └── nginx-arch1.conf              # Nginx config for Arch1
 │
-├── arch1_layered/           # Layered monolith Flask app
-│   ├── app.py               # Application factory and entrypoint
-│   ├── models.py            # SQLAlchemy models (User, Book, Borrowing, Reservation)
-│   ├── services.py          # Business logic and caching
-│   ├── routes.py            # API endpoints (Flask Blueprints)
-│   ├── config.py            # Configuration (env, DB, Redis, etc.)
-│   ├── requirements.txt     # Python dependencies
-│   └── Dockerfile           # Docker build for monolith
+├── arch1_layered/                    # Layered Architecture
+│   ├── README.md                     # Arch1 documentation
+│   ├── app.py                        # Flask application
+│   ├── models.py                     # SQLAlchemy models
+│   ├── routes.py                     # API routes
+│   ├── services.py                   # Business logic
+│   ├── docker-compose-layered.yml    # Service orchestration
+│   ├── docker-compose-infra.yml      # Database & Redis
+│   └── nginx.conf                    # Load balancer config
 │
-├── arch2_microservices/     # Microservices (WIP)
-│   ├── book_service/
-│   ├── borrowing_service/
-│   ├── user_service/
-│   ├── gateway_service/
-│   └── docker/
-│
-├── docker-compose/
-│   └── layered.yaml         # Compose file for layered monolith stack
-│
-└── README.md                # Project overview (this file)
+└── arch2_microservices/              # Microservices Architecture
+    ├── README.md                     # Arch2 documentation
+    ├── docker-compose.yml            # Service orchestration
+    ├── protos/                       # gRPC protocol definitions
+    │   ├── user.proto
+    │   ├── book.proto
+    │   └── borrowing.proto
+    ├── gateway_service/              # API Gateway
+    │   └── src/
+    ├── user_service/                 # User microservice
+    │   ├── src/
+    │   └── Dockerfile.user
+    ├── book_service/                 # Book microservice
+    │   ├── src/
+    │   └── Dockerfile.book
+    └── borrowing_service/            # Borrowing microservice
+        ├── src/
+        └── Dockerfile.borrowing
 ```
 
-## Getting Started
+## 🔄 Switching Between Architectures
 
-### Prerequisites
+Both architectures use the same frontend and expose the same API, making it easy to switch:
 
-- Docker & Docker Compose
-- Python 3.9+ (for local development)
-- PostgreSQL (if running outside Docker)
-- Redis (for caching)
-
-### Running the Layered Monolith (Recommended)
-
-1. **Clone the repository:**
-   ```sh
-   git clone https://github.com/yourusername/library-system.git
-   cd library-system
-   ```
-
-2. **Start with Docker Compose:**
-   ```sh
-   cd docker-compose
-   docker-compose -f layered.yaml up --build
-   ```
-
-   This will start:
-   - PostgreSQL database
-   - Redis (if configured)
-   - Flask backend (on port 5000)
-   - (Optional) Frontend (on port 8080, if implemented)
-
-3. **API Endpoints:**
-   - Base URL: `http://localhost:5000/api`
-   - Health Check: `GET /api/health`
-   - User Registration: `POST /api/users/register`
-   - Book List: `GET /api/books`
-   - Borrow Book: `POST /api/borrow`
-   - Return Book: `POST /api/return/<borrowing_id>`
-   - Admin Stats: `GET /api/admin/stats`
-
-4. **Sample Data:**  
-   On first run, the app seeds the database with sample users and books.
-
-### Environment Variables
-
-Set these in a `.env` file or your environment:
-
-- `DATABASE_URL` (e.g., `postgresql://postgres:postgres@db:5432/library`)
-- `SECRET_KEY`
-- `REDIS_HOST`, `REDIS_PORT`, `REDIS_DB` (optional, for caching)
-
-### Running Tests
-
-```sh
+### Stop Current Architecture
+```bash
+# If running Arch1
 cd arch1_layered
-pytest
+docker-compose -f docker-compose-layered.yml down
+
+cd ../infrastructure
+docker-compose -f docker-compose.infrastructure.yml down
+
+# If running Arch2
+cd arch2_microservices
+docker-compose down
 ```
 
-## Microservices Architecture
+### Start Different Architecture
+```bash
+# Start Arch1
+cd arch1_layered
+docker-compose -f docker-compose-layered.yml up -d --build
 
-The `arch2_microservices/` directory is a work in progress and will contain separate services for each domain (books, users, borrowing, etc.), each with its own API and database.
+cd ../infrastructure
+docker-compose -f docker-compose.infrastructure.yml up -d --build
 
-## Contributing
+# OR start Arch2
+cd arch2_microservices
+docker-compose up -d --build
+```
 
-Contributions are welcome! Please open issues or submit pull requests.
+The frontend at `localhost:3000` will automatically connect to whichever backend is running on port 8080!
 
-## License
+## 🧪 Testing Both Architectures
 
-MIT License
+### API Compatibility Test
+Both architectures expose identical REST APIs:
+
+```bash
+# Test books endpoint (works with both)
+curl http://localhost:8080/api/books
+
+# Test health endpoint (works with both)
+curl http://localhost:8080/api/health
+```
+
+### Performance Comparison
+```bash
+# Arch1 - Layered
+cd arch1_layered
+time docker-compose -f docker-compose-layered.yml up -d
+
+# Arch2 - Microservices
+cd arch2_microservices
+time docker-compose up -d
+```
+
+### Resource Usage Comparison
+```bash
+# Check memory usage
+docker stats --no-stream
+```
+
+## 📚 Learning Objectives
+
+This dual-architecture approach helps you understand:
+
+1. **Architectural Trade-offs**: When to use monolithic vs microservices
+2. **Scalability Patterns**: Horizontal scaling vs service-based scaling
+3. **Communication Patterns**: REST, gRPC, inter-service communication
+4. **Database Strategies**: Shared DB vs database per service
+5. **Deployment Strategies**: Simple vs complex orchestration
+6. **Team Organization**: Centralized vs distributed ownership
+
+## 🛠️ Technology Stack
+
+### Frontend (Shared)
+- React 18
+- Vite
+- React Router
+- Axios
+- Tailwind CSS (or your CSS framework)
+
+### Backend - Arch1 (Layered)
+- Python 3.11
+- Flask
+- SQLAlchemy
+- PostgreSQL
+- Redis
+- Nginx
+
+### Backend - Arch2 (Microservices)
+- Python 3.11
+- Flask (Gateway)
+- gRPC
+- Protocol Buffers
+- SQLAlchemy
+- PostgreSQL (per service)
+
+## 🐛 Troubleshooting
+
+### Port Conflicts
+```bash
+# Check what's using port 8080
+lsof -i :8080
+
+# Kill the process
+kill -9 <PID>
+```
+
+### Database Issues
+```bash
+# Reset everything
+docker-compose down -v
+docker-compose up -d --build
+```
+
+### Services Not Starting
+```bash
+# Check logs
+docker-compose logs -f
+
+# Check specific service
+docker-compose logs -f <service_name>
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 When to Use Each Architecture?
+
+### Use Layered Architecture (Arch1) when:
+- ✅ Building an MVP or prototype
+- ✅ Small to medium-sized team
+- ✅ Simple deployment requirements
+- ✅ Tight coupling is acceptable
+- ✅ Lower operational complexity is priority
+- ✅ Budget constraints on infrastructure
+
+### Use Microservices (Arch2) when:
+- ✅ Large, complex application
+- ✅ Multiple independent teams
+- ✅ Need to scale specific features independently
+- ✅ Different parts of the system have different technology needs
+- ✅ High availability is critical
+- ✅ Can handle operational complexity
+- ✅ Have DevOps expertise and resources
+
+## 🎓 Educational Value
+
+This repository demonstrates:
+
+- **Software Architecture Patterns**: Practical implementation of two major patterns
+- **System Design**: Trade-offs in distributed vs monolithic systems
+- **Docker & Containerization**: Multi-container orchestration
+- **API Design**: RESTful APIs and gRPC
+- **Database Design**: Shared DB vs database per service
+- **DevOps Practices**: Infrastructure as code, service orchestration
+- **Full-Stack Development**: React frontend, Python backend
+
+## 📜 License
+
+MIT License - feel free to use this for learning and educational purposes.
+
+## 🙏 Acknowledgments
+
+Built as an educational project to demonstrate architectural patterns in modern software development.
+
