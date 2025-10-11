@@ -15,7 +15,15 @@ create_db_and_tables()
 class BookService(book_pb2_grpc.BookServiceServicer):
     def AddBook(self, request, context):
         with SessionLocal() as db:
-            book = crud.create_book(db, request.title, request.author, request.isbn)
+            book = crud.create_book(
+                db,
+                request.title,
+                request.author,
+                request.isbn,
+                request.category if request.category else None,
+                request.description if request.description else None,
+                request.total_copies if request.total_copies > 0 else 1
+            )
             return book_pb2.AddBookResponse(
                 book=book_pb2.Book(
                     id=str(book.id),
@@ -23,6 +31,10 @@ class BookService(book_pb2_grpc.BookServiceServicer):
                     author=book.author,
                     isbn=book.isbn,
                     status=book.status,
+                    category=book.category if book.category else "",
+                    description=book.description if book.description else "",
+                    total_copies=book.total_copies,
+                    available_copies=book.available_copies
                 )
             )
 
@@ -39,6 +51,10 @@ class BookService(book_pb2_grpc.BookServiceServicer):
                     author=book.author,
                     isbn=book.isbn,
                     status=book.status,
+                    category=book.category if book.category else "",
+                    description=book.description if book.description else "",
+                    total_copies=book.total_copies,
+                    available_copies=book.available_copies
                 )
             )
 
@@ -53,6 +69,10 @@ class BookService(book_pb2_grpc.BookServiceServicer):
                         author=b.author,
                         isbn=b.isbn,
                         status=b.status,
+                        category=b.category if b.category else "",
+                        description=b.description if b.description else "",
+                        total_copies=b.total_copies,
+                        available_copies=b.available_copies
                     )
                     for b in books
                 ]
@@ -71,6 +91,30 @@ class BookService(book_pb2_grpc.BookServiceServicer):
                     author=book.author,
                     isbn=book.isbn,
                     status=book.status,
+                    category=book.category if book.category else "",
+                    description=book.description if book.description else "",
+                    total_copies=book.total_copies,
+                    available_copies=book.available_copies
+                )
+            )
+
+    def UpdateAvailableCopies(self, request, context):
+        with SessionLocal() as db:
+            book = crud.update_available_copies(db, request.id, request.increment)
+            if not book:
+                context.abort(grpc.StatusCode.NOT_FOUND, "Book not found")
+
+            return book_pb2.UpdateAvailableCopiesResponse(
+                book=book_pb2.Book(
+                    id=str(book.id),
+                    title=book.title,
+                    author=book.author,
+                    isbn=book.isbn,
+                    status=book.status,
+                    category=book.category if book.category else "",
+                    description=book.description if book.description else "",
+                    total_copies=book.total_copies,
+                    available_copies=book.available_copies
                 )
             )
 

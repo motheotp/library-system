@@ -135,11 +135,26 @@ services:
       dockerfile: Dockerfile.gateway
     container_name: gateway_service
     ports:
-      - "8000:8000"
+      - "8080:8000"
     depends_on:
       - user_service
       - book_service
       - borrowing_service
+    networks:
+      - library_network
+
+  # ------------------------------------------------------------------
+  # 7. Frontend Service
+  # ------------------------------------------------------------------
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - gateway_service
     networks:
       - library_network
 

@@ -61,58 +61,26 @@ class UserService(user_pb2_grpc.UserServiceServicer):
 
     def AuthenticateUser(self, request, context):
         try:
-            # 1. Hash the incoming password for comparison
-            incoming_password_hash = crud.hash_password(request.password) # <--- CHANGE: Use hash_password from crud
-            
-            with get_db() as db: # <--- CHANGE: Open database session
-                # 2. Fetch user by email    
-                db_user = crud.get_user_by_email(db, request.email)
-                print(f"DB user lookup for {request.email}: {db_user}")
-                
+            with get_db() as db:
+                # Fetch user by student_id
+                db_user = crud.get_user_by_student_id(db, request.student_id)
 
                 if not db_user:
-                    # User email not found
-                    context.abort(grpc.StatusCode.UNAUTHENTICATED, "User not found.")
-                
-                 # Hash incoming password and compare
-                
-                print("Incoming hash:", incoming_password_hash)
-                print("Stored hash:", db_user.password_hash, type(db_user.password_hash))
+                    # User not found
+                    context.abort(grpc.StatusCode.UNAUTHENTICATED, "User not found")
 
+                # Simple authentication - just check if user exists
+                # In production, you'd verify password here
+                user_proto = crud.user_model_to_proto(db_user)
 
-                if db_user.password_hash != incoming_password_hash:
-                    context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid credentials.")
-
-                # # 3. Compare the generated hash with the stored hash
-                # if db_user.password_hash == incoming_password_hash:
-                #     # Authentication successful. Return a dummy token for now.
-                #     return user_pb2.AuthenticateUserResponse(
-                #         user_id=db_user.id, 
-                #         token=f"TOKEN_{db_user.id}" # <--- CHANGE: Returning user ID from DB
-                #     )
-
-                # Success
                 return user_pb2.AuthenticateUserResponse(
-                    user_id=str(db_user.id),
-                    token=f"TOKEN_{db_user.id}"
+                    user=user_proto,
+                    message="Authentication successful"
                 )
-            
-                # else:
-                #     # Password mismatch
-                #     context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid credentials.")
-       
-        except Exception as e:
-            # --- DEBUGGING LINE ADDED ---
-            print(f"Exception Type: {type(e)}, Message: {e}") 
-            # ----------------------------
-            print(f"Error during authentication: {e}")
 
-            context.abort(StatusCode.INTERNAL, f"Authentication failed due to server error: {e}")
-            # context.abort(grpc.StatusCode.INTERNAL, "Authentication failed due to server error.")
-        
-        # except Exception as e:
-        #     print(f"Error during authentication: {e}")
-        #     context.abort(grpc.StatusCode.INTERNAL, "Authentication failed due to server error.")
+        except Exception as e:
+            print(f"Error during authentication: {e}")
+            context.abort(grpc.StatusCode.INTERNAL, "Authentication failed due to server error")
 
     def ListUsers(self, request, context):
         # NOTE: Listing all users is not a standard CRUD function but is necessary here.

@@ -24,31 +24,35 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nbook.proto\x12\x04\x62ook\"O\n\x04\x42ook\x12\n\n\x02id\x18\x01 \x01(\t\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0e\n\x06\x61uthor\x18\x03 \x01(\t\x12\x0c\n\x04isbn\x18\x04 \x01(\t\x12\x0e\n\x06status\x18\x05 \x01(\t\"=\n\x0e\x41\x64\x64\x42ookRequest\x12\r\n\x05title\x18\x01 \x01(\t\x12\x0e\n\x06\x61uthor\x18\x02 \x01(\t\x12\x0c\n\x04isbn\x18\x03 \x01(\t\"+\n\x0f\x41\x64\x64\x42ookResponse\x12\x18\n\x04\x62ook\x18\x01 \x01(\x0b\x32\n.book.Book\"\x1c\n\x0eGetBookRequest\x12\n\n\x02id\x18\x01 \x01(\t\"+\n\x0fGetBookResponse\x12\x18\n\x04\x62ook\x18\x01 \x01(\x0b\x32\n.book.Book\"\x12\n\x10ListBooksRequest\".\n\x11ListBooksResponse\x12\x19\n\x05\x62ooks\x18\x01 \x03(\x0b\x32\n.book.Book\"5\n\x17UpdateBookStatusRequest\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\"4\n\x18UpdateBookStatusResponse\x12\x18\n\x04\x62ook\x18\x01 \x01(\x0b\x32\n.book.Book2\x8e\x02\n\x0b\x42ookService\x12\x36\n\x07\x41\x64\x64\x42ook\x12\x14.book.AddBookRequest\x1a\x15.book.AddBookResponse\x12\x36\n\x07GetBook\x12\x14.book.GetBookRequest\x1a\x15.book.GetBookResponse\x12<\n\tListBooks\x12\x16.book.ListBooksRequest\x1a\x17.book.ListBooksResponse\x12Q\n\x10UpdateBookStatus\x12\x1d.book.UpdateBookStatusRequest\x1a\x1e.book.UpdateBookStatusResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nbook.proto\x12\x04\x62ook\"\xa6\x01\n\x04\x42ook\x12\n\n\x02id\x18\x01 \x01(\t\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0e\n\x06\x61uthor\x18\x03 \x01(\t\x12\x0c\n\x04isbn\x18\x04 \x01(\t\x12\x0e\n\x06status\x18\x05 \x01(\t\x12\x10\n\x08\x63\x61tegory\x18\x06 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x07 \x01(\t\x12\x14\n\x0ctotal_copies\x18\x08 \x01(\x05\x12\x18\n\x10\x61vailable_copies\x18\t \x01(\x05\"z\n\x0e\x41\x64\x64\x42ookRequest\x12\r\n\x05title\x18\x01 \x01(\t\x12\x0e\n\x06\x61uthor\x18\x02 \x01(\t\x12\x0c\n\x04isbn\x18\x03 \x01(\t\x12\x10\n\x08\x63\x61tegory\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x05 \x01(\t\x12\x14\n\x0ctotal_copies\x18\x06 \x01(\x05\"+\n\x0f\x41\x64\x64\x42ookResponse\x12\x18\n\x04\x62ook\x18\x01 \x01(\x0b\x32\n.book.Book\"\x1c\n\x0eGetBookRequest\x12\n\n\x02id\x18\x01 \x01(\t\"+\n\x0fGetBookResponse\x12\x18\n\x04\x62ook\x18\x01 \x01(\x0b\x32\n.book.Book\"\x12\n\x10ListBooksRequest\".\n\x11ListBooksResponse\x12\x19\n\x05\x62ooks\x18\x01 \x03(\x0b\x32\n.book.Book\"5\n\x17UpdateBookStatusRequest\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\"4\n\x18UpdateBookStatusResponse\x12\x18\n\x04\x62ook\x18\x01 \x01(\x0b\x32\n.book.Book\"=\n\x1cUpdateAvailableCopiesRequest\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\tincrement\x18\x02 \x01(\x05\"9\n\x1dUpdateAvailableCopiesResponse\x12\x18\n\x04\x62ook\x18\x01 \x01(\x0b\x32\n.book.Book2\xf0\x02\n\x0b\x42ookService\x12\x36\n\x07\x41\x64\x64\x42ook\x12\x14.book.AddBookRequest\x1a\x15.book.AddBookResponse\x12\x36\n\x07GetBook\x12\x14.book.GetBookRequest\x1a\x15.book.GetBookResponse\x12<\n\tListBooks\x12\x16.book.ListBooksRequest\x1a\x17.book.ListBooksResponse\x12Q\n\x10UpdateBookStatus\x12\x1d.book.UpdateBookStatusRequest\x1a\x1e.book.UpdateBookStatusResponse\x12`\n\x15UpdateAvailableCopies\x12\".book.UpdateAvailableCopiesRequest\x1a#.book.UpdateAvailableCopiesResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'book_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_BOOK']._serialized_start=20
-  _globals['_BOOK']._serialized_end=99
-  _globals['_ADDBOOKREQUEST']._serialized_start=101
-  _globals['_ADDBOOKREQUEST']._serialized_end=162
-  _globals['_ADDBOOKRESPONSE']._serialized_start=164
-  _globals['_ADDBOOKRESPONSE']._serialized_end=207
-  _globals['_GETBOOKREQUEST']._serialized_start=209
-  _globals['_GETBOOKREQUEST']._serialized_end=237
-  _globals['_GETBOOKRESPONSE']._serialized_start=239
-  _globals['_GETBOOKRESPONSE']._serialized_end=282
-  _globals['_LISTBOOKSREQUEST']._serialized_start=284
-  _globals['_LISTBOOKSREQUEST']._serialized_end=302
-  _globals['_LISTBOOKSRESPONSE']._serialized_start=304
-  _globals['_LISTBOOKSRESPONSE']._serialized_end=350
-  _globals['_UPDATEBOOKSTATUSREQUEST']._serialized_start=352
-  _globals['_UPDATEBOOKSTATUSREQUEST']._serialized_end=405
-  _globals['_UPDATEBOOKSTATUSRESPONSE']._serialized_start=407
-  _globals['_UPDATEBOOKSTATUSRESPONSE']._serialized_end=459
-  _globals['_BOOKSERVICE']._serialized_start=462
-  _globals['_BOOKSERVICE']._serialized_end=732
+  _globals['_BOOK']._serialized_start=21
+  _globals['_BOOK']._serialized_end=187
+  _globals['_ADDBOOKREQUEST']._serialized_start=189
+  _globals['_ADDBOOKREQUEST']._serialized_end=311
+  _globals['_ADDBOOKRESPONSE']._serialized_start=313
+  _globals['_ADDBOOKRESPONSE']._serialized_end=356
+  _globals['_GETBOOKREQUEST']._serialized_start=358
+  _globals['_GETBOOKREQUEST']._serialized_end=386
+  _globals['_GETBOOKRESPONSE']._serialized_start=388
+  _globals['_GETBOOKRESPONSE']._serialized_end=431
+  _globals['_LISTBOOKSREQUEST']._serialized_start=433
+  _globals['_LISTBOOKSREQUEST']._serialized_end=451
+  _globals['_LISTBOOKSRESPONSE']._serialized_start=453
+  _globals['_LISTBOOKSRESPONSE']._serialized_end=499
+  _globals['_UPDATEBOOKSTATUSREQUEST']._serialized_start=501
+  _globals['_UPDATEBOOKSTATUSREQUEST']._serialized_end=554
+  _globals['_UPDATEBOOKSTATUSRESPONSE']._serialized_start=556
+  _globals['_UPDATEBOOKSTATUSRESPONSE']._serialized_end=608
+  _globals['_UPDATEAVAILABLECOPIESREQUEST']._serialized_start=610
+  _globals['_UPDATEAVAILABLECOPIESREQUEST']._serialized_end=671
+  _globals['_UPDATEAVAILABLECOPIESRESPONSE']._serialized_start=673
+  _globals['_UPDATEAVAILABLECOPIESRESPONSE']._serialized_end=730
+  _globals['_BOOKSERVICE']._serialized_start=733
+  _globals['_BOOKSERVICE']._serialized_end=1101
 # @@protoc_insertion_point(module_scope)

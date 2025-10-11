@@ -65,6 +65,20 @@ services:
       retries: 3
       start_period: 40s
 
+  # Node 4: Frontend
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.arch1
+    container_name: library_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - nginx
+    networks:
+      - library_network
+    restart: unless-stopped
+
 # Connect to existing network created by infrastructure
 networks:
   library_network:

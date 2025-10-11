@@ -8,6 +8,7 @@ service BookService {
   rpc GetBook (GetBookRequest) returns (GetBookResponse);
   rpc ListBooks (ListBooksRequest) returns (ListBooksResponse);
   rpc UpdateBookStatus (UpdateBookStatusRequest) returns (UpdateBookStatusResponse);
+  rpc UpdateAvailableCopies (UpdateAvailableCopiesRequest) returns (UpdateAvailableCopiesResponse);
 }
 
 // ===== Messages =====
@@ -19,6 +20,10 @@ message Book {
   string author = 3;
   string isbn = 4;
   string status = 5; // e.g., "available", "borrowed"
+  string category = 6;
+  string description = 7;
+  int32 total_copies = 8;
+  int32 available_copies = 9;
 }
 
 // --- AddBook ---
@@ -26,6 +31,9 @@ message AddBookRequest {
   string title = 1;
   string author = 2;
   string isbn = 3;
+  string category = 4;
+  string description = 5;
+  int32 total_copies = 6;
 }
 
 message AddBookResponse {
@@ -55,5 +63,15 @@ message UpdateBookStatusRequest {
 }
 
 message UpdateBookStatusResponse {
+  Book book = 1;
+}
+
+// --- UpdateAvailableCopies ---
+message UpdateAvailableCopiesRequest {
+  string id = 1;
+  int32 increment = 2; // positive to add, negative to subtract
+}
+
+message UpdateAvailableCopiesResponse {
   Book book = 1;
 }

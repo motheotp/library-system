@@ -5,7 +5,7 @@ import warnings
 
 from . import borrowing_pb2 as borrowing__pb2
 
-GRPC_GENERATED_VERSION = '1.74.0'
+GRPC_GENERATED_VERSION = '1.75.1'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
