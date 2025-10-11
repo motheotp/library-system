@@ -10,7 +10,7 @@ import requests
 import json
 import time
 
-GATEWAY_URL = "http://localhost:8000"
+GATEWAY_URL = "http://localhost:8080"
 
 # Sample users data (matching arch1 sample data)
 SAMPLE_USERS = [
@@ -109,7 +109,7 @@ SAMPLE_BOOKS = [
 def check_gateway_health():
     """Check if gateway is running"""
     try:
-        response = requests.get(f"{GATEWAY_URL}/health", timeout=5)
+        response = requests.get(f"{GATEWAY_URL}/api/health", timeout=5)
         if response.status_code == 200:
             print("✅ Gateway is healthy")
             return True
@@ -130,7 +130,7 @@ def create_users():
     for user_data in SAMPLE_USERS:
         try:
             response = requests.post(
-                f"{GATEWAY_URL}/users/register",
+                f"{GATEWAY_URL}/api/users/register",
                 json=user_data,
                 headers={"Content-Type": "application/json"}
             )
@@ -156,7 +156,7 @@ def create_books():
     for book_data in SAMPLE_BOOKS:
         try:
             response = requests.post(
-                f"{GATEWAY_URL}/books",
+                f"{GATEWAY_URL}/api/books",
                 json=book_data,
                 headers={"Content-Type": "application/json"}
             )
@@ -202,7 +202,7 @@ def create_sample_borrowings(users, books):
 
         try:
             response = requests.post(
-                f"{GATEWAY_URL}/borrow",
+                f"{GATEWAY_URL}/api/borrow",
                 json={
                     "user_id": user["id"],
                     "book_id": book["id"]
@@ -229,7 +229,7 @@ def verify_data():
 
     try:
         # Check books
-        response = requests.get(f"{GATEWAY_URL}/books")
+        response = requests.get(f"{GATEWAY_URL}/api/books")
         if response.status_code == 200:
             data = response.json()
             book_count = len(data.get("books", []))
@@ -238,7 +238,7 @@ def verify_data():
             print(f"  ⚠️  Failed to fetch books: {response.status_code}")
 
         # Check stats
-        response = requests.get(f"{GATEWAY_URL}/admin/stats")
+        response = requests.get(f"{GATEWAY_URL}/api/admin/stats")
         if response.status_code == 200:
             stats = response.json()
             print(f"  ✅ Stats:")

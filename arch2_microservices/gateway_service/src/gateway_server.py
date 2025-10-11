@@ -84,6 +84,7 @@ def token_required(f):
 
 # Health check endpoint
 @app.route("/health", methods=["GET"])
+@app.route("/api/health", methods=["GET"])
 def health_check():
     return jsonify({
         "status": "healthy",
@@ -101,7 +102,7 @@ def before_first_request():
 # ------------------------
 # Authentication routes
 # ------------------------
-@app.route("/users/register", methods=["POST"])
+@app.route("/api/users/register", methods=["POST"])
 def register():
     if not user_client:
         return jsonify({"error": "User service not available"}), 503
@@ -150,7 +151,7 @@ def register():
     except grpc.RpcError as e:
         return jsonify({"error": e.details()}), 400
 
-@app.route("/users/login", methods=["POST"])
+@app.route("/api/users/login", methods=["POST"])
 def login():
     if not user_client:
         return jsonify({"error": "User service not available"}), 503
@@ -183,7 +184,7 @@ def login():
 # ------------------------
 # User routes
 # ------------------------
-@app.route("/users", methods=["POST"])
+@app.route("/api/users", methods=["POST"])
 def create_user():
     if not user_client:
         return jsonify({"error": "User service not available"}), 503
@@ -198,7 +199,7 @@ def create_user():
         "user_type": response.user.user_type
     })
 
-@app.route("/users/<user_id>", methods=["GET"])
+@app.route("/api/users/<user_id>", methods=["GET"])
 def get_user(user_id):
     if not user_client:
         return jsonify({"error": "User service not available"}), 503
@@ -213,7 +214,7 @@ def get_user(user_id):
     except grpc.RpcError as e:
         return jsonify({"error": e.details()}), 404
 
-@app.route("/users", methods=["GET"])
+@app.route("/api/users", methods=["GET"])
 def list_users():
     response = user_client.list_users()
     return jsonify({
@@ -226,7 +227,7 @@ def list_users():
 # ------------------------
 # Book routes
 # ------------------------
-@app.route("/books", methods=["POST"])
+@app.route("/api/books", methods=["POST"])
 def add_book():
     if not book_client:
         return jsonify({"error": "Book service not available"}), 503
@@ -256,7 +257,7 @@ def add_book():
         logging.error(f"Error adding book: {e}")
         return jsonify({"error": e.details()}), 500
 
-@app.route("/books/<book_id>", methods=["GET"])
+@app.route("/api/books/<book_id>", methods=["GET"])
 def get_book(book_id):
     try:
         response = book_client.get_book(book_id)
@@ -274,7 +275,7 @@ def get_book(book_id):
     except grpc.RpcError as e:
         return jsonify({"error": e.details()}), 404
 
-@app.route("/books", methods=["GET"])
+@app.route("/api/books", methods=["GET"])
 def list_books():
     if not book_client:
         return jsonify({"error": "Book service not available"}), 503
@@ -322,7 +323,7 @@ def list_books():
         logging.error(f"Error fetching books: {e}")
         return jsonify({"error": e.details()}), 500
 
-@app.route("/books/<book_id>/status", methods=["PATCH"])
+@app.route("/api/books/<book_id>/status", methods=["PATCH"])
 def update_book_status(book_id):
     data = request.json
     try:
@@ -341,7 +342,7 @@ def update_book_status(book_id):
     except grpc.RpcError as e:
         return jsonify({"error": e.details()}), 404
 
-@app.route("/books/search", methods=["GET"])
+@app.route("/api/books/search", methods=["GET"])
 def search_books():
     query = request.args.get('q', '')
     try:
@@ -367,7 +368,7 @@ def search_books():
     except grpc.RpcError as e:
         return jsonify({"error": e.details()}), 500
 
-@app.route("/books/popular", methods=["GET"])
+@app.route("/api/books/popular", methods=["GET"])
 def get_popular_books():
     """Get popular books (most borrowed)"""
     if not book_client:
@@ -401,7 +402,7 @@ def get_popular_books():
 # ------------------------
 # Borrowing routes
 # ------------------------
-@app.route("/borrowings", methods=["POST"])
+@app.route("/api/borrowings", methods=["POST"])
 def borrow_book():
     data = request.json
     response = borrowing_client.borrow_book(data["user_id"], data["book_id"])
@@ -410,7 +411,7 @@ def borrow_book():
         "status": response.status
     })
 
-@app.route("/borrowings/<borrow_id>/return", methods=["POST"])
+@app.route("/api/borrowings/<borrow_id>/return", methods=["POST"])
 def return_book(borrow_id):
     try:
         response = borrowing_client.return_book(borrow_id)
@@ -418,7 +419,7 @@ def return_book(borrow_id):
     except grpc.RpcError as e:
         return jsonify({"error": e.details()}), 404
 
-@app.route("/users/<user_id>/borrowings", methods=["GET"])
+@app.route("/api/users/<user_id>/borrowings", methods=["GET"])
 def get_user_borrowings(user_id):
     if not borrowing_client:
         return jsonify({"error": "Borrowing service not available"}), 503
@@ -441,7 +442,7 @@ def get_user_borrowings(user_id):
         logging.error(f"Error fetching borrowings: {e}")
         return jsonify({"error": e.details()}), 500
 
-@app.route("/users/<user_id>/borrowed", methods=["GET"])
+@app.route("/api/users/<user_id>/borrowed", methods=["GET"])
 def get_user_borrowed_books(user_id):
     """Get user's borrowed books (frontend expects this endpoint)"""
     if not borrowing_client:
@@ -504,7 +505,7 @@ def get_user_borrowed_books(user_id):
         logging.error(f"Error fetching borrowed books: {e}")
         return jsonify({"borrowed_books": [], "count": 0, "user_id": user_id}), 200
 
-@app.route("/return/<borrow_id>", methods=["POST"])
+@app.route("/api/return/<borrow_id>", methods=["POST"])
 def return_book_by_id(borrow_id):
     """Return a borrowed book (frontend expects this endpoint)"""
     if not borrowing_client:
@@ -535,7 +536,7 @@ def return_book_by_id(borrow_id):
         logging.error(f"Error returning book: {e}")
         return jsonify({"error": e.details()}), 400
 
-@app.route("/overdue", methods=["GET"])
+@app.route("/api/overdue", methods=["GET"])
 def get_all_overdue_books():
     """Get all overdue borrowed books"""
     if not borrowing_client:
@@ -552,7 +553,7 @@ def get_all_overdue_books():
 # ------------------------
 # Admin routes
 # ------------------------
-@app.route("/admin/stats", methods=["GET"])
+@app.route("/api/admin/stats", methods=["GET"])
 def get_stats():
     """Get library statistics"""
     try:
@@ -577,7 +578,7 @@ def get_stats():
         logging.error(f"Stats error: {e}")
         return jsonify({"error": e.details()}), 500
 
-@app.route("/admin/overdue", methods=["GET"])
+@app.route("/api/admin/overdue", methods=["GET"])
 def get_overdue_books():
     """Get overdue borrowed books"""
     try:
@@ -590,7 +591,7 @@ def get_overdue_books():
         logging.error(f"Overdue books error: {e}")
         return jsonify({"error": e.details()}), 500
 
-@app.route("/borrow", methods=["POST"])
+@app.route("/api/borrow", methods=["POST"])
 def borrow_book_simple():
     """Simplified borrow endpoint for compatibility"""
     data = request.json
@@ -604,7 +605,7 @@ def borrow_book_simple():
     except grpc.RpcError as e:
         return jsonify({"error": e.details()}), 400
 
-@app.route("/return", methods=["POST"])
+@app.route("/api/return", methods=["POST"])
 def return_book_simple():
     """Simplified return endpoint for compatibility"""
     data = request.json
@@ -617,7 +618,7 @@ def return_book_simple():
     except grpc.RpcError as e:
         return jsonify({"error": e.details()}), 400
 
-@app.route("/dashboard", methods=["GET"])
+@app.route("/api/dashboard", methods=["GET"])
 def get_dashboard():
     """Get user dashboard data"""
     user_id = request.args.get('user_id')

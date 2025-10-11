@@ -135,7 +135,7 @@ services:
       dockerfile: Dockerfile.gateway
     container_name: gateway_service
     ports:
-      - "8000:8000"
+      - "8080:8000"
     depends_on:
       - user_service
       - book_service
