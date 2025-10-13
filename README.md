@@ -36,6 +36,13 @@ Frontend → API Gateway → [User Service, Book Service, Borrowing Service] →
 - 4-6GB available RAM
 - Ports 3000 and 8080 available
 
+### Configuration
+
+**Both architectures come fully pre-configured** - you can start them immediately without creating any configuration files!
+
+- **Architecture 1 (Layered)**: Uses `.env` files (provided `.env.example` in `infrastructure/`)
+- 
+
 ### Choose Your Architecture
 
 #### Option 1: Layered Architecture
@@ -51,6 +58,8 @@ docker-compose -f docker-compose.infrastructure.yml up -d --build
 ```bash
 cd arch2_microservices
 docker-compose up -d --build
+
+python seed_data.py
 ```
 
 ### Access the Application
