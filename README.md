@@ -41,7 +41,6 @@ Frontend → API Gateway → [User Service, Book Service, Borrowing Service] →
 **Both architectures come fully pre-configured** - you can start them immediately without creating any configuration files!
 
 - **Architecture 1 (Layered)**: Uses `.env` files (provided `.env.example` in `infrastructure/`)
-- 
 
 ### Choose Your Architecture
 
@@ -58,8 +57,11 @@ docker-compose -f docker-compose.infrastructure.yml up -d --build
 ```bash
 cd arch2_microservices
 docker-compose up -d --build
+```
 
-python seed_data.py
+To add intial data to the database
+```bash
+python seed_data.py 
 ```
 
 ### Access the Application
