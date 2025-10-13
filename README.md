@@ -58,9 +58,7 @@ docker-compose -f docker-compose.infrastructure.yml up -d --build
 ```bash
 cd arch2_microservices
 docker-compose up -d --build
-```
 
-```bash
 python seed_data.py
 ```
 
